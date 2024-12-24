@@ -164,7 +164,7 @@ static JSValue athena_font_set_color(JSContext *ctx, JSValueConst this_val, JSVa
 static JSClassDef js_font_class = {
     "Font",
     .finalizer = athena_font_dtor,
-}; 
+};
 
 static const JSCFunctionListEntry js_font_proto_funcs[] = {
     //JS_CGETSET_MAGIC_DEF("x", js_point_get_xy, js_point_set_xy, 0),
@@ -176,19 +176,19 @@ static const JSCFunctionListEntry js_font_proto_funcs[] = {
 
 static int font_init(JSContext *ctx, JSModuleDef *m) {
     JSValue font_proto, font_class;
-    
+
     /* create the Point class */
     JS_NewClassID(&js_font_class_id);
     JS_NewClass(JS_GetRuntime(ctx), js_font_class_id, &js_font_class);
 
     font_proto = JS_NewObject(ctx);
     JS_SetPropertyFunctionList(ctx, font_proto, js_font_proto_funcs, countof(js_font_proto_funcs));
-    
+
     font_class = JS_NewCFunction2(ctx, athena_font_ctor, "Font", 2, JS_CFUNC_constructor, 0);
     /* set proto.constructor and ctor.prototype */
     JS_SetConstructor(ctx, font_class, font_proto);
     JS_SetClassProto(ctx, js_font_class_id, font_proto);
-                      
+
     JS_SetModuleExport(ctx, m, "Font", font_class);
 
     fntInit();

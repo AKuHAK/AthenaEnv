@@ -41,7 +41,7 @@ static void athena_imagelist_dtor(JSRuntime *rt, JSValue val){
 	kill_task(list->thread_id);
 	DeleteSema(list->sema_id);
 	if(list->size > 0) free(list->list);
-	
+
 	js_free_rt(rt, list);
 }
 
@@ -92,7 +92,7 @@ static JSValue athena_imagelist_process(JSContext *ctx, JSValue this_val, int ar
 static JSClassDef js_imagelist_class = {
     "ImageList",
     .finalizer = athena_imagelist_dtor,
-}; 
+};
 
 static const JSCFunctionListEntry js_imagelist_proto_funcs[] = {
     JS_CFUNC_DEF("process", 0, athena_imagelist_process ),
@@ -101,19 +101,19 @@ static const JSCFunctionListEntry js_imagelist_proto_funcs[] = {
 static int js_imagelist_init(JSContext *ctx, JSModuleDef *m)
 {
     JSValue imagelist_proto, imagelist_class;
-    
-    // create the Point class 
+
+    // create the Point class
     JS_NewClassID(&js_imagelist_class_id);
     JS_NewClass(JS_GetRuntime(ctx), js_imagelist_class_id, &js_imagelist_class);
 
     imagelist_proto = JS_NewObject(ctx);
     JS_SetPropertyFunctionList(ctx, imagelist_proto, js_imagelist_proto_funcs, countof(js_imagelist_proto_funcs));
-    
+
     imagelist_class = JS_NewCFunction2(ctx, athena_imagelist_ctor, "ImageList", 0, JS_CFUNC_constructor, 0);
-    // set proto.constructor and ctor.prototype 
+    // set proto.constructor and ctor.prototype
     JS_SetConstructor(ctx, imagelist_class, imagelist_proto);
     JS_SetClassProto(ctx, js_imagelist_class_id, imagelist_proto);
-                      
+
     JS_SetModuleExport(ctx, m, "ImageList", imagelist_class);
     return 0;
 }

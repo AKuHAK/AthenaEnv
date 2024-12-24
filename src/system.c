@@ -17,7 +17,7 @@ char* __ps2_normalize_path(char *path_name)
 	int i, j;
 	int first, next;
 	static char out[255];
-	
+
 	/* First copy the path into our temp buffer */
 	strcpy(out, path_name);
         /* Then append "/" to make the rest easier */
@@ -46,7 +46,7 @@ char* __ps2_normalize_path(char *path_name)
 	first = next = 0;
 	while(1) {
 		/* If a "../" follows, remove it and the parent */
-		if(out[next+1] && out[next+1]=='.' && 
+		if(out[next+1] && out[next+1]=='.' &&
 		   out[next+2] && out[next+2]=='.' &&
 		   out[next+3] && out[next+3]=='/') {
 			for(j=0; out[first+j+1]; j++)
@@ -65,7 +65,7 @@ char* __ps2_normalize_path(char *path_name)
 	/* Remove trailing "/" */
 	for(i=1; out[i]; i++)
 		continue;
-	if(i >= 1 && out[i-1] == '/') 
+	if(i >= 1 && out[i-1] == '/')
 		out[i-1] = 0;
 
 	return (char*)out;

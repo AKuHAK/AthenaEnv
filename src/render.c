@@ -91,14 +91,14 @@ model* loadOBJ(const char* path, GSTEXTURE* text){
 	char* content = (char*)malloc(size+1);
 	read(file, content, size);
 	content[size] = 0;
-	
+
 	// Closing file
 	close(file);
-	
+
 	// Creating temp vertexList
 	rawVertexList* vl = (rawVertexList*)malloc(sizeof(rawVertexList));
 	rawVertexList* init = vl;
-	
+
 	// Init variables
 	char* str = content;
 	char* ptr = strstr(str,"v ");
@@ -114,10 +114,10 @@ model* loadOBJ(const char* path, GSTEXTURE* text){
 	char* end_val;
 	float* vert_args;
 	rawVertexList* old_vl;
-	
+
 	// Vertices extraction
 	for(;;){
-		
+
 		// Check if a magic change is needed
 		while (ptr == NULL){
 			if (magics_idx < 2){
@@ -131,7 +131,7 @@ model* loadOBJ(const char* path, GSTEXTURE* text){
 			}
 		}
 		if (skip) break;
-		
+
 		// Extract vertex
 		if (magics_idx == 0) idx = 0;
 		else if (magics_idx == 1) idx = 3;
@@ -142,7 +142,7 @@ model* loadOBJ(const char* path, GSTEXTURE* text){
 		end_vert = strstr(init_val,"\n");
 		if (magics_idx == 0) res = (vertex*)malloc(sizeof(vertex));
 		end_val = strstr(init_val," ");
-		vert_args = (float*)res; // Hacky way to iterate in vertex struct		
+		vert_args = (float*)res; // Hacky way to iterate in vertex struct
 		while (init_val < end_vert){
 			if (end_val > end_vert) end_val = end_vert;
 			strncpy(float_val, init_val, end_val - init_val);
@@ -153,7 +153,7 @@ model* loadOBJ(const char* path, GSTEXTURE* text){
 			while (init_val[0] == ' ') init_val++;
 			end_val = strstr(init_val," ");
 		}
-		
+
 		// Update rawVertexList struct
 		if (magics_idx == 0){
 			vl->vert = res;
@@ -173,11 +173,11 @@ model* loadOBJ(const char* path, GSTEXTURE* text){
 			}else if(vl->vert == NULL) vl->vert = (vertex*)malloc(sizeof(vertex));
 			res = vl->vert;
 		}
-		
+
 		// Searching for next vertex
 		str = ptr + 1;
 		ptr = strstr(str,magics[magics_idx]);
-		
+
 	}
 
 	// Creating real RAW vertexList
@@ -192,20 +192,20 @@ model* loadOBJ(const char* path, GSTEXTURE* text){
 	char* ptr2;
 	int t_idx;
 	rawVertexList* tmp;
-	
+
 	// Faces extraction
 	while (ptr != NULL){
-		
+
 		// Skipping padding
-		ptr+=2;		
-		
+		ptr+=2;
+
 		// Extracting face info
 		f_idx = 0;
 		while (f_idx < 3){
-		
+
 			// Allocating new vertex
 			faces->vert = (vertex*)malloc(sizeof(vertex));
-		
+
 			// Extracting x,y,z
 			ptr2 = strstr(ptr,"/");
 			strncpy(val,ptr,ptr2-ptr);
@@ -220,7 +220,7 @@ model* loadOBJ(const char* path, GSTEXTURE* text){
 			faces->vert->x = tmp->vert->x;
 			faces->vert->y = tmp->vert->y;
 			faces->vert->z = tmp->vert->z;
-			
+
 			// Extracting texture info
 			ptr = ptr2+1;
 			ptr2 = strstr(ptr,"/");
@@ -240,7 +240,7 @@ model* loadOBJ(const char* path, GSTEXTURE* text){
 				faces->vert->t1 = 0.0f;
 				faces->vert->t2 = 0.0f;
 			}
-			
+
 			// Extracting normals info
 			ptr = ptr2+1;
 			if (f_idx < 2) ptr2 = strstr(ptr," ");
@@ -270,11 +270,11 @@ model* loadOBJ(const char* path, GSTEXTURE* text){
 			len++;
 			f_idx++;
 		}
-		
+
 		ptr = strstr(ptr,"f ");
-		
+
 	}
-	
+
 	// Freeing temp vertexList and allocated file
 	free(content);
 	rawVertexList* tmp_init;
@@ -284,7 +284,7 @@ model* loadOBJ(const char* path, GSTEXTURE* text){
 		init = init->next;
 		free(tmp_init);
 	}
-	
+
 	// Create the model struct and populating vertex list
 	model* res_m = (model*)malloc(sizeof(model));
 	vertexList* vlist = (vertexList*)malloc(sizeof(vertexList));
@@ -315,8 +315,8 @@ model* loadOBJ(const char* path, GSTEXTURE* text){
 		free(tmp_init);
 	}
 	res_m->facesCount = len / 3;
-  
-	
+
+
 	// Setting texture
 	res_m->texture = text;
 
@@ -366,7 +366,7 @@ model* loadOBJ(const char* path, GSTEXTURE* text){
 		res_m->texcoords[n+1][1] = object->v2.t2;
 		res_m->texcoords[n+1][2] = 0.000f;
 		res_m->texcoords[n+1][3] = 0.000f;
-	
+
 		res_m->colours[n+1][0] = 1.000f;
 		res_m->colours[n+1][1] = 1.000f;
 		res_m->colours[n+1][2] = 1.000f;
@@ -416,7 +416,7 @@ model* loadOBJ(const char* path, GSTEXTURE* text){
 		memcpy(&c_texcoords[i], &res_m->texcoords[res_m->idxList[i]], sizeof(VECTOR));
 		memcpy(&c_normals[i], &res_m->normals[res_m->idxList[i]], sizeof(VECTOR));
 	}
-	
+
 	//calculate bounding box
 	float lowX, lowY, lowZ, hiX, hiY, hiZ;
     lowX = hiX = res_m->positions[res_m->idxList[0]][0];
@@ -524,7 +524,7 @@ void draw_bbox(model* m, float pos_x, float pos_y, float pos_z, float rot_x, flo
 	gsKit_prim_line_3d(gsGlobal, (t_xyz[1].x+1.0f)*fX, (t_xyz[1].y+1.0f)*fY, xyz[1].z, (t_xyz[5].x+1.0f)*fX, (t_xyz[5].y+1.0f)*fY, xyz[5].z, color);
 	gsKit_prim_line_3d(gsGlobal, (t_xyz[2].x+1.0f)*fX, (t_xyz[2].y+1.0f)*fY, xyz[2].z, (t_xyz[6].x+1.0f)*fX, (t_xyz[6].y+1.0f)*fY, xyz[6].z, color);
 	gsKit_prim_line_3d(gsGlobal, (t_xyz[3].x+1.0f)*fX, (t_xyz[3].y+1.0f)*fY, xyz[3].z, (t_xyz[7].x+1.0f)*fX, (t_xyz[7].y+1.0f)*fY, xyz[7].z, color);
-	
+
 	free(t_xyz);
 	free(xyz);
 }
@@ -549,7 +549,7 @@ int athena_process_xyz_rgbaq(GSPRIMPOINT *output, GSGLOBAL* gsGlobal, int count,
 		case GS_PSMZ_16S:
 			z = 16;
 			break;
-		
+
 		default:
 			return -1;
 	}
@@ -606,7 +606,7 @@ int athena_process_xyz_rgbaq_st(GSPRIMSTQPOINT *output, GSGLOBAL* gsGlobal, int 
 		case GS_PSMZ_16S:
 			z = 16;
 			break;
-		
+
 		default:
 			return -1;
 	}
@@ -692,7 +692,7 @@ void drawOBJ(model* m, float pos_x, float pos_y, float pos_z, float rot_x, float
 		gsKit_prim_list_triangle_goraud_texture_stq_3d(gsGlobal, m->texture, m->facesCount*3, gs_vertices);
 
 		free(gs_vertices);
-		
+
 	} else {
 		GSPRIMPOINT* gs_vertices = (GSPRIMPOINT*)memalign(128, sizeof(GSPRIMPOINT)*m->facesCount*3);
 
@@ -703,7 +703,7 @@ void drawOBJ(model* m, float pos_x, float pos_y, float pos_z, float rot_x, float
 		free(gs_vertices);
 	}
 
-	
+
 	free(t_normals); free(t_lights); free(t_colours); free(t_xyz);
 
 }

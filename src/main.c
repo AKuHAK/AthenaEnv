@@ -52,17 +52,17 @@ char boot_path[255];
 static void prepare_IOP() {
     printf("AthenaEnv: Starting IOP Reset...\n");
     SifInitRpc(0);
-    #if defined(RESET_IOP)  
+    #if defined(RESET_IOP)
     while (!SifIopReset("", 0)){};
     #endif
     while (!SifIopSync()){};
     SifInitRpc(0);
     printf("AthenaEnv: IOP reset done.\n");
-    
+
     // install sbv patch fix
     printf("AthenaEnv: Installing SBV Patches...\n");
     sbv_patch_enable_lmb();
-    sbv_patch_disable_prefix_check(); 
+    sbv_patch_disable_prefix_check();
 }
 
 static void deinit_drivers(bool deinit_powerOff) {
@@ -73,7 +73,7 @@ static void deinit_drivers(bool deinit_powerOff) {
     deinit_usb_driver();
     deinit_memcard_driver(true);
     deinit_fileXio_driver();
-    
+
     if (deinit_powerOff)
         deinit_poweroff_driver();
 }
@@ -99,16 +99,16 @@ void initMC()
    printf("initMC: Initializing Memory Card\n");
 
    ret = mcInit(MC_TYPE_XMC);
-   
+
    if( ret < 0 ) {
 	printf("initMC: failed to initialize memcard server.\n");
    } else {
        printf("initMC: memcard server started successfully.\n");
    }
-   
+
    // Since this is the first call, -1 should be returned.
    // makes me sure that next ones will work !
-   mcGetInfo(0, 0, &mc_Type, &mc_Free, &mc_Format); 
+   mcGetInfo(0, 0, &mc_Type, &mc_Free, &mc_Format);
    mcSync(MC_WAIT, NULL, &ret);
 }
 
@@ -145,10 +145,10 @@ static void init_drivers() {
 int main(int argc, char **argv) {
     prepare_IOP();
     init_drivers();
-    
+
     getcwd(boot_path, sizeof(boot_path));
     waitUntilDeviceIsReady(boot_path);
-    
+
     init_taskman();
 	init_graphics();
     loadFontM();

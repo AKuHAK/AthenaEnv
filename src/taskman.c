@@ -47,7 +47,7 @@ void init_taskman()
         tasks.size++;
         ReferThreadStatus(tasks.size, &info);
     } //A way to list already created threads
-    
+
     printf("Threads running during boot: %d\n", tasks.size);
     tasks.list = malloc(sizeof(Task*)*tasks.size);
 
@@ -65,9 +65,9 @@ int create_task(const char* title, void* func, int stack_size, int priority)
     memcpy(aux, tasks.list, tasks.size*sizeof(Task*));
     free(tasks.list);
     tasks.list = aux;
-    
+
     ee_thread_t thread_param;
-	
+
 	thread_param.gp_reg = &_gp;
     thread_param.func = func;
     thread_param.stack_size = stack_size;
@@ -85,7 +85,7 @@ int create_task(const char* title, void* func, int stack_size, int priority)
     printf("%s task created.\n",tasks.list[tasks.size]->title);
 
     tasks.size++;
-    
+
     return tasks.list[tasks.size-1]->id;
 
 }

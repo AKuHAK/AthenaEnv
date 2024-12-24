@@ -192,7 +192,7 @@ static JSValue athena_archiveopen(JSContext *ctx, JSValue this_val, int argc, JS
     fp = fopen(path, "rb");
 
     uint32_t magic;
-	fread(&magic, 1, 4, fp);	
+	fread(&magic, 1, 4, fp);
 	fclose(fp);
 
 	if(magic == 0x04034b50 /* ZIP */) {
@@ -235,7 +235,7 @@ static JSValue athena_archiveget(JSContext *ctx, JSValue this_val, int argc, JSV
             printf("File[%s] Line[%d]\n", __FILE__, __LINE__);
         }
     }
-    
+
 	return arr;
 }
 
@@ -332,9 +332,9 @@ static JSValue athena_extractall(JSContext *ctx, JSValue this_val, int argc, JSV
                     mkdir(outbuff, 0755);
                 } else {
                     zf = zip_fopen_index(arc->fp, i, 0);
-    
+
                     fp = fopen(sb.name, "wb+");
-    
+
                     sum = 0;
                     while (sum != sb.size) {
                         len = zip_fread(zf, buf, 100);
@@ -347,7 +347,7 @@ static JSValue athena_extractall(JSContext *ctx, JSValue this_val, int argc, JSV
             } else {
                 printf("File[%s] Line[%d]/n", __FILE__, __LINE__);
             }
-        }   
+        }
     }
     return JS_UNDEFINED;
 }

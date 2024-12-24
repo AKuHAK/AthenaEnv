@@ -135,7 +135,7 @@ void play_wav(Sound * wav) {
         } else {
             StartThread(wavThreadId, NULL);
         }
-    } 
+    }
 }
 
 void sound_free(Sound* snd) {
@@ -181,7 +181,7 @@ void sound_resume(Sound* snd) {
 	if(stream_paused) {
         cur_snd = snd;
         audsrv_set_format(&cur_snd->fmt);
-        
+
         if (cur_snd->type == WAV_AUDIO)
             WakeupThread(wavThreadId);
 
@@ -499,7 +499,7 @@ void play_ogg(Sound* ogg) {
             StartThread(oggIoThreadID, NULL);
             StartThread(oggThreadID, NULL);
         }
-    } 
+    }
 }
 
 static void oggShutdownDelayCallback(s32 alarm_id, u16 time, void *common)

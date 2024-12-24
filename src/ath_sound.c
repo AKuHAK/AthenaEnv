@@ -12,7 +12,7 @@ static JSValue athena_setvolume(JSContext *ctx, JSValue this_val, int argc, JSVa
 	} else {
 		sound_setvolume(volume);
 	}
-	
+
 	return JS_UNDEFINED;
 }
 
@@ -22,7 +22,7 @@ static JSValue athena_load(JSContext *ctx, JSValue this_val, int argc, JSValueCo
 
 	FILE* f = fopen(path, "rb");
 	uint32_t magic;
-	fread(&magic, 1, 4, f);	
+	fread(&magic, 1, 4, f);
 	fclose(f);
 
 	switch (magic) {
@@ -32,7 +32,7 @@ static JSValue athena_load(JSContext *ctx, JSValue this_val, int argc, JSValueCo
 		case 0x46464952: /* WAV */
 			snd = load_wav(path);
 			break;
-		case 0x4D435041: /* ADPCM (with header) */  
+		case 0x4D435041: /* ADPCM (with header) */
 			snd = malloc(sizeof(Sound));
 			snd->fp = sound_loadadpcm(path);
 			snd->type = ADPCM_AUDIO;
@@ -63,7 +63,7 @@ static JSValue athena_play(JSContext *ctx, JSValue this_val, int argc, JSValueCo
 			sound_playadpcm(slot, snd->fp);
 			break;
 	}
-	
+
 	return JS_UNDEFINED;
 }
 

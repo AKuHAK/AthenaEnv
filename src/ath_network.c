@@ -146,7 +146,7 @@ static int ethApplyIPConfig(int use_dhcp, const struct ip4_addr *ip, const struc
 
 static JSValue athena_nw_init(JSContext *ctx, JSValue this_val, int argc, JSValueConst *argv){
 	if (argc != 0 && argc != 4) return JS_ThrowSyntaxError(ctx, "wrong number of arguments.");
-	
+
     struct ip4_addr IP, NM, GW, DNS;
 
     ip4_addr_set_zero(&IP);
@@ -215,7 +215,7 @@ static JSValue athena_nw_gethostbyname(JSContext *ctx, JSValue this_val, int arg
 {
     const char* host = JS_ToCString(ctx, argv[0]);
     struct hostent *host_address = lwip_gethostbyname(host);
-    
+
     if (host_address == NULL)
         return JS_ThrowSyntaxError(ctx, "Unable to resolve address.\n");
 
@@ -249,20 +249,20 @@ static JSValue athena_nw_requests_get(JSContext *ctx, JSValue this_val, int argc
 
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
- 
+
         /* Perform the request, res will get the return code */
         res = curl_easy_perform(curl);
         /* Check for errors */
         if(res != CURLE_OK) {
             JS_ThrowSyntaxError(ctx, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
         }
-    
+
         /* always cleanup */
         curl_easy_cleanup(curl);
   }
- 
+
     curl_global_cleanup();
- 
+
     return JS_NewStringLen(ctx, chunk.memory, chunk.size);
 }
 
@@ -279,7 +279,7 @@ static JSValue athena_nw_requests_post(JSContext *ctx, JSValue this_val, int arg
     unsigned int len = 0;
 
     curl_global_init(CURL_GLOBAL_ALL);
-    
+
     curl = curl_easy_init();
     if(curl) {
         curl_easy_setopt(curl, CURLOPT_URL, JS_ToCString(ctx, argv[0]));
@@ -298,7 +298,7 @@ static JSValue athena_nw_requests_post(JSContext *ctx, JSValue this_val, int arg
         curl_easy_setopt(curl, CURLOPT_USERAGENT, "libcurl-agent/1.0");
 
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
- 
+
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
 
         /* Perform the request, res will get the return code */
@@ -309,7 +309,7 @@ static JSValue athena_nw_requests_post(JSContext *ctx, JSValue this_val, int arg
 
         /* always cleanup */
         curl_easy_cleanup(curl);
-        
+
     }
 
     curl_global_cleanup();

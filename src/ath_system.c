@@ -27,8 +27,8 @@ static JSValue athena_setCurrentDirectory(JSContext *ctx, JSValueConst *argv)
 	if(!path) return JS_ThrowSyntaxError(ctx, "Argument error: System.currentDirectory(file) takes a filename as string as argument.");
 
 	athena_getCurrentDirectory(ctx);
-	
-	// let's do what the ps2sdk should do, 
+
+	// let's do what the ps2sdk should do,
 	// some normalization... :)
 	// if absolute path (contains [drive]:path/)
 	if (strchr(path, ':'))
@@ -50,7 +50,7 @@ static JSValue athena_setCurrentDirectory(JSContext *ctx, JSValueConst *argv)
 	           } while (temp_path[idx] != '/');
 	           temp_path[idx] = '\0';
 	        }
-	        
+
            }
            // add given directory to the existing path
            else
@@ -60,10 +60,10 @@ static JSValue athena_setCurrentDirectory(JSContext *ctx, JSValueConst *argv)
 	      strcat(temp_path,path);
 	   }
         }
-        
+
         printf("changing directory to %s\n",__ps2_normalize_path(temp_path));
         chdir(__ps2_normalize_path(temp_path));
-       
+
 	return JS_UNDEFINED;
 }
 
@@ -76,72 +76,72 @@ static JSValue athena_curdir(JSContext *ctx, JSValue this_val, int argc, JSValue
 
 static JSValue athena_dir(JSContext *ctx, JSValue this_val, int argc, JSValueConst *argv)
 {
-	
+
 	if (argc != 0 && argc != 1) return JS_ThrowSyntaxError(ctx, "Argument error: System.listDir([path]) takes zero or one argument.");
-	
+
 	JSValue arr = JS_NewArray(ctx);
 
     const char *temp_path = "";
 	char path[255];
-	
+
 	getcwd((char *)path, 256);
 	printf("current dir %s\n",(char *)path);
-	
-	if (argc != 0) 
+
+	if (argc != 0)
 	{
 		temp_path = JS_ToCString(ctx, argv[0]);
 		// append the given path to the boot_path
-	        
+
 	        strcpy ((char *)path, boot_path);
-	        
+
 	        if (strchr(temp_path, ':'))
-	           // workaround in case of temp_path is containing 
+	           // workaround in case of temp_path is containing
 	           // a device name again
 	           strcpy ((char *)path, temp_path);
 	        else
 	           strcat ((char *)path, temp_path);
 	}
-	
+
 	strcpy(path,__ps2_normalize_path(path));
 	printf("\nchecking path : %s\n",path);
-		
 
-        
+
+
     //-----------------------------------------------------------------------------------------
 	// read from MC ?
-        
+
     if( !strcmp( path, "mc0:" ) || !strcmp( path, "mc1:" ) )
-    {       
+    {
         int	nPort, numRead;
         char mcPath[256];
 		sceMcTblGetDir mcEntries[MAX_DIR_FILES] __attribute__((aligned(64)));
-		
+
 		if( !strcmp( path, "mc0:" ) )
 			nPort = 0;
 		else
 			nPort = 1;
-		
-		
+
+
 		// copy only the path without the device (ie : mc0:/xxx/xxx -> /xxx/xxx)
 		strcpy(mcPath,(char *)&path[4]);
-				
+
 		// it temp_path is empty put a "/" inside
         if (strlen(mcPath)==0)
            strcpy((char *)mcPath,(char *)"/");
-		
+
 
 		if (mcPath[strlen(mcPath)-1] != '/')
 		  strcat( mcPath, "/-*" );
 		else
 		  strcat( mcPath, "*" );
-	
+
 		mcGetDir( nPort, 0, mcPath, 0, MAX_DIR_FILES, mcEntries);
    		while (!mcSync( MC_WAIT, NULL, &numRead ));
-   		                	    
+
 	    int cpt = 0;
 
 		for( int i = 0; i < numRead; i++ )
-		{	
+		{
 			JSValue obj = JS_NewObject(ctx);
 
 			JS_DefinePropertyValueStr(ctx, obj, "name", JS_NewString(ctx, (const char *)mcEntries[i].EntryName), JS_PROP_C_W_E);
@@ -151,10 +151,10 @@ static JSValue athena_dir(JSContext *ctx, JSValue this_val, int argc, JSValueCon
 			JS_DefinePropertyValueUint32(ctx, arr, cpt++, obj, JS_PROP_C_W_E);
 
 		}
-		return arr; 
+		return arr;
     }
     //-----------------------------------------------------------------------------------------
-    
+
     // else regular one using opendir/readdir
 
 	int i = 0;
@@ -176,7 +176,7 @@ static JSValue athena_dir(JSContext *ctx, JSValue this_val, int argc, JSValueCon
 	    }
 	    closedir(d);
 	}
-	
+
 	return arr;
 }
 
@@ -185,7 +185,7 @@ static JSValue athena_createDir(JSContext *ctx, JSValue this_val, int argc, JSVa
 	const char *path = JS_ToCString(ctx, argv[0]);
 	if(!path) return JS_ThrowSyntaxError(ctx, "Argument error: System.createDirectory(directory) takes a directory name as string as argument.");
 	mkdir(path, 0777);
-	
+
 	return JS_UNDEFINED;
 }
 
@@ -194,7 +194,7 @@ static JSValue athena_removeDir(JSContext *ctx, JSValue this_val, int argc, JSVa
 	const char *path = JS_ToCString(ctx, argv[0]);
 	if(!path) return JS_ThrowSyntaxError(ctx, "Argument error: System.removeDirectory(directory) takes a directory name as string as argument.");
 	rmdir(path);
-	
+
 	return JS_UNDEFINED;
 }
 
@@ -255,7 +255,7 @@ static JSValue athena_rename(JSContext *ctx, JSValue this_val, int argc, JSValue
     close(dest);
 
 	remove(oldName);
-	
+
 	return JS_UNDEFINED;
 }
 
@@ -278,7 +278,7 @@ static JSValue athena_copyfile(JSContext *ctx, JSValue this_val, int argc, JSVal
 
     close(source);
     close(dest);
-	
+
 	return JS_UNDEFINED;
 }
 
@@ -301,7 +301,7 @@ static JSValue athena_sleep(JSContext *ctx, JSValue this_val, int argc, JSValueC
 static JSValue athena_getFreeMemory(JSContext *ctx, JSValue this_val, int argc, JSValueConst *argv)
 {
 	if (argc != 0) return JS_ThrowSyntaxError(ctx, "no arguments expected.");
-	
+
 	size_t result = GetFreeSize();
 
 	return JS_NewUint32(ctx, (uint32_t)(result));
@@ -364,7 +364,7 @@ static JSValue athena_openfile(JSContext *ctx, JSValue this_val, int argc, JSVal
 
 static JSValue athena_readfile(JSContext *ctx, JSValue this_val, int argc, JSValueConst *argv){
 	if (argc != 2) return JS_ThrowSyntaxError(ctx, "wrong number of arguments");
-	
+
 	int file;
 	uint32_t size;
 
@@ -406,7 +406,7 @@ static JSValue athena_seekfile(JSContext *ctx, JSValue this_val, int argc, JSVal
 	JS_ToInt32(ctx, &pos, argv[1]);
 	JS_ToUint32(ctx, &type, argv[2]);
 
-	lseek(fd, pos, type);	
+	lseek(fd, pos, type);
 	return JS_UNDEFINED;
 }
 
@@ -528,7 +528,7 @@ static JSValue athena_getDiscType(JSContext *ctx, JSValue this_val, int argc, JS
     int discType;
     int iz;
     discType = sceCdGetDiskType();
-    
+
     int DiscType_ix = 0;
         for (iz = 0; DiscTypes[iz].name[0]; iz++)
             if (DiscTypes[iz].type == discType)
@@ -605,8 +605,8 @@ static const JSCFunctionListEntry system_funcs[] = {
 	JS_CFUNC_DEF( "openFile",           		  2,         athena_openfile),
 	JS_CFUNC_DEF( "readFile",          		  2,         athena_readfile		 ),
 	JS_CFUNC_DEF( "writeFile",          		  3,       	athena_writefile		 ),
-	JS_CFUNC_DEF( "closeFile",          		  1,       	athena_closefile		 ),  
-	JS_CFUNC_DEF( "seekFile",          		  3,         athena_seekfile		 ),  
+	JS_CFUNC_DEF( "closeFile",          		  1,       	athena_closefile		 ),
+	JS_CFUNC_DEF( "seekFile",          		  3,         athena_seekfile		 ),
 	JS_CFUNC_DEF( "sizeFile",          		  1,         athena_sizefile			 ),
 	JS_CFUNC_DEF( "doesFileExist",      		  1,      	athena_checkexist	 ),
 	JS_CFUNC_DEF( "currentDir",   1,        		athena_curdir		 ),
@@ -649,7 +649,7 @@ static JSValue athena_sifloadmodule(JSContext *ctx, JSValue this_val, int argc, 
 		JS_ToInt32(ctx, &arg_len, argv[1]);
 		args = JS_ToCString(ctx, argv[2]);
 	}
-	
+
 	int result = SifLoadModule(path, arg_len, args);
 	return JS_NewInt32(ctx, result);
 }

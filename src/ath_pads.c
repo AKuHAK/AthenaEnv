@@ -35,7 +35,7 @@ static JSValue athena_getpad(JSContext *ctx, JSValue this_val, int argc, JSValue
         if (ret != 0) {
             paddata = 0xffff ^ buttons.btns;
         }
-    } 
+    }
 
 	if (ds34bt_get_status(port) & DS34BT_STATE_RUNNING) {
         ret = ds34bt_get_data(port, (u8 *)&buttons.btns);
@@ -71,7 +71,7 @@ static JSValue athena_getpressure(JSContext *ctx, JSValue this_val, int argc, JS
 	} else {
 		JS_ToInt32(ctx, &button, argv[0]);
 	}
-	
+
 	struct padButtonStatus pad;
 
 	unsigned char pressure = 255;

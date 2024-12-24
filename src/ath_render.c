@@ -23,7 +23,7 @@ static JSValue athena_loadobj(JSContext *ctx, JSValue this_val, int argc, JSValu
 	if (argc != 2 && argc != 1) return JS_ThrowSyntaxError(ctx, "wrong number of arguments");
 	#endif
 	const char *file_tbo = JS_ToCString(ctx, argv[0]); //Model filename
-	
+
 	// Loading texture
 	if(argc == 2) {
 		image = JS_GetOpaque2(ctx, argv[1], get_img_class_id());
@@ -40,7 +40,7 @@ static JSValue athena_freeobj(JSContext *ctx, JSValue this_val, int argc, JSValu
 #ifndef SKIP_ERROR_HANDLING
 	if (argc != 1) return JS_ThrowSyntaxError(ctx, "wrong number of arguments");
 #endif
-	
+
 	model* m;
 	JS_ToUint32(ctx, &m, argv[0]);
 
@@ -56,7 +56,7 @@ static JSValue athena_freeobj(JSContext *ctx, JSValue this_val, int argc, JSValu
 	m->texcoords = NULL;
 	free(m->bounding_box);
 	m->bounding_box = NULL;
-	
+
 	free(m);
 	m = NULL;
 
@@ -76,7 +76,7 @@ static JSValue athena_drawobj(JSContext *ctx, JSValue this_val, int argc, JSValu
 	JS_ToFloat32(ctx, &rot_x, argv[4]);
 	JS_ToFloat32(ctx, &rot_y, argv[5]);
 	JS_ToFloat32(ctx, &rot_z, argv[6]);
-	
+
 	drawOBJ(m, pos_x, pos_y, pos_z, rot_x, rot_y, rot_z);
 
 	return JS_UNDEFINED;
@@ -98,7 +98,7 @@ static JSValue athena_drawbbox(JSContext *ctx, JSValue this_val, int argc, JSVal
 	JS_ToFloat32(ctx, &rot_y, argv[5]);
 	JS_ToFloat32(ctx, &rot_z, argv[6]);
 	JS_ToUint32(ctx, &color, argv[7]);
-	
+
 	draw_bbox(m, pos_x, pos_y, pos_z, rot_x, rot_y, rot_z, color);
 
 	return JS_UNDEFINED;
@@ -138,7 +138,7 @@ static JSValue athena_createlight(JSContext *ctx, JSValue this_val, int argc, JS
 	JS_ToFloat32(ctx, &g, argv[5]);
 	JS_ToFloat32(ctx, &b, argv[6]);
 	JS_ToInt32(ctx, &type, argv[7]);
-	
+
 	createLight(id, dir_x, dir_y, dir_z, type, r, g, b);
 
 	return JS_UNDEFINED;
@@ -158,7 +158,7 @@ static JSValue athena_camposition(JSContext *ctx, JSValue this_val, int argc, JS
 	JS_ToFloat32(ctx, &x, argv[0]);
 	JS_ToFloat32(ctx, &y, argv[1]);
 	JS_ToFloat32(ctx, &z, argv[2]);
-	
+
 	setCameraPosition(x, y, z);
 
 	return JS_UNDEFINED;
@@ -171,7 +171,7 @@ static JSValue athena_camrotation(JSContext *ctx, JSValue this_val, int argc, JS
 	JS_ToFloat32(ctx, &x, argv[0]);
 	JS_ToFloat32(ctx, &y, argv[1]);
 	JS_ToFloat32(ctx, &z, argv[2]);
-	
+
 	setCameraRotation(x, y, z);
 
 	return JS_UNDEFINED;

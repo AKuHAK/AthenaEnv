@@ -107,7 +107,7 @@ static int qjs_handle_fh(JSContext *ctx, FILE *f, const char *filename, const ch
 	buf[bufoff++] = 0;
         js_std_add_helpers(ctx, 0, NULL);
         { // make 'std' and 'os' visible to non module code
-            const char *str = 
+            const char *str =
 				"import * as std from 'std';\n"
                 "import * as os from 'os';\n"
 				"import * as Color from 'Color';\n"
@@ -267,7 +267,7 @@ const char* runScript(const char* script, bool isBuffer)
 	athena_font_init(ctx);
 
     int s = qjs_handle_file(ctx, script, NULL);
-    if (s < 0) { 
+    if (s < 0) {
 		JSValue val = JS_GetException(ctx);
 		const char* exception = JS_ToCString(ctx, val);
 		const char* stack = JS_ToCString(ctx, JS_GetPropertyStr(ctx, val, "stack"));
@@ -277,9 +277,9 @@ const char* runScript(const char* script, bool isBuffer)
 		strcat(error, stack);
 		JS_FreeContext(ctx);
 		JS_FreeRuntime(rt);
-		return error; 
+		return error;
 	}
-	
+
 	JS_FreeContext(ctx);
 	JS_FreeRuntime(rt);
     return NULL;

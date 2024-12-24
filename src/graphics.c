@@ -722,11 +722,11 @@ int athena_load_jpeg(GSTEXTURE* tex, FILE* fp, bool scale_down, bool delayed)
 	jpeg_read_header(&cinfo, TRUE);
 
 	_ps2_load_JPEG_generic(tex, &cinfo, &jerr, scale_down);
-	
+
 	jpeg_destroy_decompress(&cinfo);
 	fclose(fp);
 
-	
+
 	if(!tex->Delayed)
 	{
 		tex->Vram = gsKit_vram_alloc(gsGlobal, gsKit_texture_size(tex->Width, tex->Height, tex->PSM), GSKIT_ALLOC_USERBUFFER);
@@ -800,7 +800,7 @@ void gsKit_clear_screens()
 void clearScreen(Color color)
 {
 	gsKit_clear(gsGlobal, color);
-	
+
 }
 
 void loadFontM()
@@ -839,7 +839,7 @@ GSFONT* loadFont(const char* path){
 	} else if (magic == 0x4246) {
 		font = gsKit_init_font(GSKIT_FTYPE_FNT, (char*)path);
 		gsKit_font_upload(gsGlobal, font);
-	} else if (magic == 0x5089) { 
+	} else if (magic == 0x5089) {
 		font = gsKit_init_font(GSKIT_FTYPE_PNG_DAT, (char*)path);
 		gsKit_font_upload(gsGlobal, font);
 	}
@@ -882,7 +882,7 @@ void drawImageCentered(GSTEXTURE* source, float x, float y, float width, float h
 	if (source->Delayed == true) {
 		gsKit_TexManager_bind(gsGlobal, source);
 	}
-	gsKit_prim_sprite_texture(gsGlobal, source, 
+	gsKit_prim_sprite_texture(gsGlobal, source,
 					x-width/2, // X1
 					y-height/2, // Y1
 					startx,  // U1
@@ -891,8 +891,8 @@ void drawImageCentered(GSTEXTURE* source, float x, float y, float width, float h
 					(height/2+y), // Y2
 					endx, // U2
 					endy, // V2
-					1, 
-					color);	
+					1,
+					color);
 
 }
 
@@ -902,7 +902,7 @@ void drawImage(GSTEXTURE* source, float x, float y, float width, float height, f
 	if (source->Delayed == true) {
 		gsKit_TexManager_bind(gsGlobal, source);
 	}
-	gsKit_prim_sprite_texture(gsGlobal, source, 
+	gsKit_prim_sprite_texture(gsGlobal, source,
 					x-0.5f, // X1
 					y-0.5f, // Y1
 					startx,  // U1
@@ -911,8 +911,8 @@ void drawImage(GSTEXTURE* source, float x, float y, float width, float height, f
 					(height+y)-0.5f, // Y2
 					endx, // U2
 					endy, // V2
-					1, 
-					color);	
+					1,
+					color);
 }
 
 
@@ -924,11 +924,11 @@ void drawImageRotate(GSTEXTURE* source, float x, float y, float width, float hei
 	if (source->Delayed == true) {
 		gsKit_TexManager_bind(gsGlobal, source);
 	}
-	gsKit_prim_quad_texture(gsGlobal, source, 
-							(-width/2)*c - (-height/2)*s+x, (-height/2)*c + (-width/2)*s+y, startx, starty, 
-							(-width/2)*c - height/2*s+x, height/2*c + (-width/2)*s+y, startx, endy, 
-							width/2*c - (-height/2)*s+x, (-height/2)*c + width/2*s+y, endx, starty, 
-							width/2*c - height/2*s+x, height/2*c + width/2*s+y, endx, endy, 
+	gsKit_prim_quad_texture(gsGlobal, source,
+							(-width/2)*c - (-height/2)*s+x, (-height/2)*c + (-width/2)*s+y, startx, starty,
+							(-width/2)*c - height/2*s+x, height/2*c + (-width/2)*s+y, startx, endy,
+							width/2*c - (-height/2)*s+x, (-height/2)*c + width/2*s+y, endx, starty,
+							width/2*c - height/2*s+x, height/2*c + width/2*s+y, endx, endy,
 							1, color);
 
 }
@@ -988,7 +988,7 @@ void drawCircle(float x, float y, float radius, u64 color, u8 filled)
 		v[36*2] = radius + x;
 		v[36*2 + 1] = y;
 	}
-	
+
 	if (filled)
 		gsKit_prim_triangle_fan(gsGlobal, v, 36, 1, color);
 	else
@@ -1003,7 +1003,7 @@ void InvalidateTexture(GSTEXTURE *txt)
 void UnloadTexture(GSTEXTURE *txt)
 {
 	gsKit_TexManager_free(gsGlobal, txt);
-	
+
 }
 
 int GetInterlacedFrameMode()
@@ -1046,7 +1046,7 @@ void setVideoMode(s16 mode, int width, int height, int psm, s16 interlace, s16 f
 	gsKit_sync_flip(gsGlobal);
 
 	gsKit_mode_switch(gsGlobal, GS_ONESHOT);
-    gsKit_clear(gsGlobal, BLACK_RGBAQ);	
+    gsKit_clear(gsGlobal, BLACK_RGBAQ);
 }
 
 void fntDrawQuad(rm_quad_t *q)
@@ -1141,26 +1141,26 @@ void init_graphics()
 
 	gsKit_mode_switch(gsGlobal, GS_ONESHOT);
 
-    gsKit_clear(gsGlobal, BLACK_RGBAQ);	
+    gsKit_clear(gsGlobal, BLACK_RGBAQ);
 	gsKit_vsync_wait();
 	flipScreen();
-	gsKit_clear(gsGlobal, BLACK_RGBAQ);	
+	gsKit_clear(gsGlobal, BLACK_RGBAQ);
 	gsKit_vsync_wait();
 	flipScreen();
 
 }
 
 void flipScreen()
-{	
+{
 	//gsKit_set_finish(gsGlobal);
 	if (gsGlobal->DoubleBuffering == GS_SETTING_OFF) {
-        if(vsync) 
+        if(vsync)
 			gsKit_sync(gsGlobal);
 		gsKit_queue_exec(gsGlobal);
     } else {
 		gsKit_queue_exec(gsGlobal);
 		gsKit_finish();
-		if(vsync) 
+		if(vsync)
 			gsKit_sync(gsGlobal);
 		gsKit_flip(gsGlobal);
 	}

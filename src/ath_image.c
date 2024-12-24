@@ -21,11 +21,11 @@ int append_img(JSImageData* img, JSImgList* list)
 		memcpy(aux, list->list, list->size*sizeof(JSImageData*));
 		free(list->list);
 	}
-    
+
     list->list = aux;
 	list->list[list->size] = img;
     list->size++;
-    
+
     return 0;
 }
 
@@ -33,7 +33,7 @@ static JSValue athena_image_isloaded(JSContext *ctx, JSValue this_val, int argc,
 	JSImageData *image = JS_GetOpaque2(ctx, this_val, js_image_class_id);
 
 	return (image->loaded? JS_TRUE : JS_FALSE);
-	
+
 }
 
 static void athena_image_dtor(JSRuntime *rt, JSValue val){
@@ -131,7 +131,7 @@ static JSValue js_image_get(JSContext *ctx, JSValueConst this_val, int magic)
 {
 	JSValue val = JS_UNDEFINED;
     JSImageData *s = JS_GetOpaque2(ctx, this_val, js_image_class_id);
-	
+
     if (!s){
 		return JS_EXCEPTION;
 	}
@@ -217,7 +217,7 @@ static JSValue athena_image_set_uint(JSContext *ctx, JSValueConst this_val, JSVa
         return JS_EXCEPTION;
     if (JS_ToUint32(ctx, &value, val))
         return JS_EXCEPTION;
-	
+
 	if(magic == 0){
 		s->color = value;
 	} else {
@@ -230,7 +230,7 @@ static JSValue athena_image_set_uint(JSContext *ctx, JSValueConst this_val, JSVa
 static JSClassDef js_image_class = {
     "Image",
     .finalizer = athena_image_dtor,
-}; 
+};
 
 static const JSCFunctionListEntry js_image_proto_funcs[] = {
     JS_CFUNC_DEF("draw", 2, athena_image_draw),
@@ -248,19 +248,19 @@ static const JSCFunctionListEntry js_image_proto_funcs[] = {
 
 static int image_init(JSContext *ctx, JSModuleDef *m) {
     JSValue image_proto, image_class;
-    
+
     /* create the Point class */
     JS_NewClassID(&js_image_class_id);
     JS_NewClass(JS_GetRuntime(ctx), js_image_class_id, &js_image_class);
 
     image_proto = JS_NewObject(ctx);
     JS_SetPropertyFunctionList(ctx, image_proto, js_image_proto_funcs, countof(js_image_proto_funcs));
-    
+
     image_class = JS_NewCFunction2(ctx, athena_image_ctor, "Image", 2, JS_CFUNC_constructor, 0);
     /* set proto.constructor and ctor.prototype */
     JS_SetConstructor(ctx, image_class, image_proto);
     JS_SetClassProto(ctx, js_image_class_id, image_proto);
-                      
+
     JS_SetModuleExport(ctx, m, "Image", image_class);
     return 0;
 }

@@ -130,13 +130,13 @@ int initializePad(int port, int slot)
 struct padButtonStatus readPad(int port, int slot)
 {
     struct padButtonStatus buttons;
-    int ret;    
+    int ret;
 
     do {
     	ret = padGetState(port, slot);
-    } while((ret != PAD_STATE_STABLE) && (ret != PAD_STATE_FINDCTP1));  
+    } while((ret != PAD_STATE_STABLE) && (ret != PAD_STATE_FINDCTP1));
 
-    ret = padRead(port, slot, &buttons);      
+    ret = padRead(port, slot, &buttons);
 
     return buttons;
 
@@ -146,9 +146,9 @@ int isButtonPressed(u32 button)
 {
    int ret;
    u32 paddata;
-   
+
    struct padButtonStatus padbuttons;
-   
+
    while (((ret=padGetState(0, 0)) != PAD_STATE_STABLE)&&(ret!=PAD_STATE_FINDCTP1)&&(ret != PAD_STATE_DISCONN)); // more error check ?
    if (padRead(0, 0, &padbuttons) != 0)
    {

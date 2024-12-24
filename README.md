@@ -8,7 +8,7 @@
     Enhanced JavaScript environment for PlayStation 2™
     <br />
   </p>
-</p>  
+</p>
 
 
 <details open="open">
@@ -70,7 +70,7 @@ In this section you will have some information about how to code using AthenaEnv
 Using AthenaEnv you only need one way to code and one way to test your code, that is, if you want, you can even create your code on PS2, but I'll leave some recommendations below.
 
 * PC: [Visual Studio Code](https://code.visualstudio.com)(with JavaScript extension) and [PCSX2](https://pcsx2.net/download/development/dev-windows.html)(1.7.0 or above, enabled HostFS is required) or PS2Client for test.
-* How to enable HostFS on PCSX2 1.7.0:  
+* How to enable HostFS on PCSX2 1.7.0:
 ![image](https://user-images.githubusercontent.com/47725160/145600021-b07dd873-137d-4364-91ec-7ace0b1936e2.png)
 
 * Android: [QuickEdit](https://play.google.com/store/apps/details?id=com.rhmsoft.edit&hl=pt_BR&gl=US) and AetherSX2(HostFS is required) or a PS2 with uLE for test.
@@ -94,17 +94,17 @@ Below is the list of usable functions of AthenaEnv project currently, this list 
 
 P.S.: *Italic* parameters refer to optional parameters
 
-### Image Module  
+### Image Module
 
-Construction:  
+Construction:
 
-* var image = new Image(path, *mode*, *async_list*);  
-  path - Path to the file, E.g.: "images/test.png".  
-  *mode* - Choose between storing the image between **RAM** or **VRAM**, default value is RAM.  
-  *async_list* - Gets a ImageList object, which is a asynchronous image loading list, if you want to load images in the background.  
+* var image = new Image(path, *mode*, *async_list*);
+  path - Path to the file, E.g.: "images/test.png".
+  *mode* - Choose between storing the image between **RAM** or **VRAM**, default value is RAM.
+  *async_list* - Gets a ImageList object, which is a asynchronous image loading list, if you want to load images in the background.
 ```js
-var test = new Image("owl.png", VRAM); 
-``` 
+var test = new Image("owl.png", VRAM);
+```
 
 Properties:
 
@@ -113,14 +113,14 @@ Properties:
 * endx, endy - End of the area that will be drawn from the image, the default value is the original image size.
 * angle - Define image rotation angle, default value is 0.0.
 * color - Define image tinting, default value is Color.new(255, 255, 255, 128).
-* filter - Choose between **LINEAR** or **NEAREST**, default value is NEAREST.  
+* filter - Choose between **LINEAR** or **NEAREST**, default value is NEAREST.
 
 Methods:
 
 * draw(x, y) - Draw loaded image onscreen(call it every frame). Example: image.draw(15.0, 100.0);
-* ready() - Returns true if an asynchronous image was successfully loaded in memory. 
+* ready() - Returns true if an asynchronous image was successfully loaded in memory.
 ```js
-var loaded = image.ready();  
+var loaded = image.ready();
 ```
 
 **ImageList**
@@ -132,12 +132,12 @@ var async_list = new ImageList(); // This constructor creates a new thread and a
 ```
 Methods:
 
-* process() - This method starts the thread and loads added images on the queue. 
+* process() - This method starts the thread and loads added images on the queue.
 ```js
 async_list.process();
 ```
-  
-  
+
+
 ### Draw module
 * Draw.point(x, y, color)
 * Draw.rect(x, y, width, height, color)
@@ -148,8 +148,8 @@ async_list.process();
 
 ### Render module
 
-• Remember to enable zbuffering on screen mode, put the line of code below  
-• Default NTSC mode(3D enabled): 
+• Remember to enable zbuffering on screen mode, put the line of code below
+• Default NTSC mode(3D enabled):
 ```js
 Display.setMode(NTSC, 640, 448, CT24, INTERLACED, FIELD, true, Z16S);
 ```
@@ -157,16 +157,16 @@ Display.setMode(NTSC, 640, 448, CT24, INTERLACED, FIELD, true, Z16S);
 * Render.init(aspect) *default aspect is 4/3, widescreen is 16/9
 * var model = Render.loadOBJ(path, *texture*)
 * Render.drawOBJ(model, pos_x, pos_y, pos_z, rot_x, rot_y, rot_z)
-* Render.freeOBJ(model)  
+* Render.freeOBJ(model)
 
-**Camera**   
+**Camera**
 * Camera.position(x, y, z)
 * Camera.rotation(x, y, z)
 
-**Lights**  
+**Lights**
 * Lights.create(count)
-* Lights.set(light, dir_x, dir_y, dir_z, r, g, b, type)  
-  • Avaiable light types: AMBIENT, DIRECTIONAL  
+* Lights.set(light, dir_x, dir_y, dir_z, r, g, b, type)
+  • Avaiable light types: AMBIENT, DIRECTIONAL
 
 ### Screen module
 * Screen.clear(*color*)
@@ -175,29 +175,29 @@ Display.setMode(NTSC, 640, 448, CT24, INTERLACED, FIELD, true, Z16S);
 * var fps = Screen.getFPS(frame_interval)
 * Screen.setVSync(bool)
 * Screen.waitVblankStart()
-* Screen.setMode(mode, width, height, colormode, interlace, field, *zbuffering*, *zbuf_colormode*)  
-  • Default NTSC mode(3D disabled): Screen.setMode(NTSC, 640, 448, CT24, INTERLACED, FIELD)  
-  • Default NTSC mode(3D enabled):  Screen.setMode(NTSC, 640, 448, CT24, INTERLACED, FIELD, true, Z16S)  
-  • Default PAL mode(3D disabled): Screen.setMode(PAL, 640, 512, CT24, INTERLACED, FIELD)  
-  • Default PAL mode(3D enabled):  Screen.setMode(PAL, 640, 512, CT24, INTERLACED, FIELD, true, Z16S)  
-  • Available modes: NTSC, DTV_480p, PAL, DTV_576p, DTV_720p, DTV_1080i  
-  • Available colormodes: CT16, CT16S, CT24, CT32  
-  • Available zbuffer colormodes: Z16, Z16S, Z24, Z32  
-  • Available interlaces: INTERLACED, PROGRESSIVE  
-  • Available fields: FIELD, FRAME  
+* Screen.setMode(mode, width, height, colormode, interlace, field, *zbuffering*, *zbuf_colormode*)
+  • Default NTSC mode(3D disabled): Screen.setMode(NTSC, 640, 448, CT24, INTERLACED, FIELD)
+  • Default NTSC mode(3D enabled):  Screen.setMode(NTSC, 640, 448, CT24, INTERLACED, FIELD, true, Z16S)
+  • Default PAL mode(3D disabled): Screen.setMode(PAL, 640, 512, CT24, INTERLACED, FIELD)
+  • Default PAL mode(3D enabled):  Screen.setMode(PAL, 640, 512, CT24, INTERLACED, FIELD, true, Z16S)
+  • Available modes: NTSC, DTV_480p, PAL, DTV_576p, DTV_720p, DTV_1080i
+  • Available colormodes: CT16, CT16S, CT24, CT32
+  • Available zbuffer colormodes: Z16, Z16S, Z24, Z32
+  • Available interlaces: INTERLACED, PROGRESSIVE
+  • Available fields: FIELD, FRAME
 
 ### Font module
 
-Construction:  
+Construction:
 
 ```js
-var font = new Font(path);  
+var font = new Font(path);
 ```
-  path - Path to a font file, E.g.: "images/atlas.png", "fonts/font.png".  
+  path - Path to a font file, E.g.: "images/atlas.png", "fonts/font.png".
 ```js
-var osdfnt = new Font();  //Load BIOS font  
-var font = new Font("Segoe UI.ttf"); //Load trueType font 
-``` 
+var osdfnt = new Font();  //Load BIOS font
+var font = new Font("Segoe UI.ttf"); //Load trueType font
+```
 
 Properties:
 * color - Define font tinting, default value is Color.new(255, 255, 255, 128).
@@ -209,39 +209,39 @@ Methods:
 ### Pads module
 
 * var pad = Pads.get(*port*)
-  • pad.btns - Buttons  
-  • pad.lx - Left analog horizontal position (left = -127, default = 0, right = 128)  
-  • pad.ly - Left analog vertical position (up = -127, default = 0, down = 128)  
-  • pad.rx - Right analog horizontal position (left = -127, default = 0, right = 128)  
-  • pad.ry - Right analog vertical position (up = -127, default = 0, down = 128)  
-    
+  • pad.btns - Buttons
+  • pad.lx - Left analog horizontal position (left = -127, default = 0, right = 128)
+  • pad.ly - Left analog vertical position (up = -127, default = 0, down = 128)
+  • pad.rx - Right analog horizontal position (left = -127, default = 0, right = 128)
+  • pad.ry - Right analog vertical position (up = -127, default = 0, down = 128)
+
   ![analog_graph](https://user-images.githubusercontent.com/47725160/154816009-99d7e5da-badf-409b-9a3b-3618fd372f09.png)
 
 * var type = Pads.getType(*port*)
-  • Pads.DIGITAL  
-  • Pads.ANALOG  
-  • Pads.DUALSHOCK  
+  • Pads.DIGITAL
+  • Pads.ANALOG
+  • Pads.DUALSHOCK
 * var press = Pads.getPressure(*port*, button)
 * Pads.rumble(port, big, small)
 * var ret = Pads.check(pad, button)
-* Buttons list:  
-  • Pads.SELECT  
-  • Pads.START  
-  • Pads.UP  
-  • Pads.RIGHT  
-  • Pads.DOWN  
-  • Pads.LEFT  
-  • Pads.TRIANGLE  
-  • Pads.CIRCLE  
-  • Pads.CROSS  
-  • Pads.SQUARE  
-  • Pads.L1  
-  • Pads.R1  
-  • Pads.L2  
-  • Pads.R2  
-  • Pads.L3  
-  • Pads.R3  
-  
+* Buttons list:
+  • Pads.SELECT
+  • Pads.START
+  • Pads.UP
+  • Pads.RIGHT
+  • Pads.DOWN
+  • Pads.LEFT
+  • Pads.TRIANGLE
+  • Pads.CIRCLE
+  • Pads.CROSS
+  • Pads.SQUARE
+  • Pads.L1
+  • Pads.R1
+  • Pads.L2
+  • Pads.R2
+  • Pads.L3
+  • Pads.R3
+
 ### Keyboard module
 * Keyboard.init()
 * var c = Keyboard.get()
@@ -251,41 +251,41 @@ Methods:
 
 ### Mouse module
 * Mouse.init()
-* var mouse = Mouse.get()  
-  • mouse.x  
-  • mouse.y  
-  • mouse.wheel  
-  • mouse.buttons  
+* var mouse = Mouse.get()
+  • mouse.x
+  • mouse.y
+  • mouse.wheel
+  • mouse.buttons
 * Mouse.setBoundary(minx, maxx, miny, maxy)
 * var mode = Mouse.getMode()
 * Mouse.setMode(mode)
 * var accel = Mouse.getAccel()
 * Mouse.setAccel(val)
 * Mouse.setPosition(x, y)
-  
+
 ### System module
 
 * var fd = System.openFile(path, type)
-* Types list:  
-  • System.FREAD   
-  • System.FWRITE  
-  • System.FCREATE  
-  • System.FRDWR  
+* Types list:
+  • System.FREAD
+  • System.FWRITE
+  • System.FCREATE
+  • System.FRDWR
 * var buffer = System.readFile(file, size)
 * System.writeFile(fd, data, size)
 * System.closeFile(fd)
 * System.seekFile(fd, pos, type)
-* Types list:  
-  • System.SET  
-  • System.CUR  
-  • System.END  
+* Types list:
+  • System.SET
+  • System.CUR
+  • System.END
 * var size = System.sizeFile(fd)
 * System.doesFileExist(path)
 * System.CurrentDirectory(path) *if path given, it sets the current dir, else it gets the current dir
 * var listdir = System.listDir(*path*)
-  • listdir[index].name - return file name on indicated index(string)  
-  • listdir[index].size - return file size on indicated index(integer)  
-  • listdir[index].directory - return if indicated index is a file or a directory(bool)  
+  • listdir[index].name - return file name on indicated index(string)
+  • listdir[index].size - return file size on indicated index(integer)
+  • listdir[index].directory - return if indicated index is a file or a directory(bool)
 * System.createDirectory(path)
 * System.removeDirectory(path)
 * System.removeFile(path)
@@ -295,16 +295,16 @@ Methods:
 * System.sleep(sec)
 * var freemem = System.getFreeMemory()
 * System.exitToBrowser()
-* var info = System.getMCInfo(slot)  
-  • info.type  
-  • info.freemem  
-  • info.format  
-  
-Asynchronous functions:  
+* var info = System.getMCInfo(slot)
+  • info.type
+  • info.freemem
+  • info.format
+
+Asynchronous functions:
 * System.threadCopyFile(source, dest)
-* var progress = System.getFileProgress()  
-  • progress.current  
-  • progress.final  
+* var progress = System.getFileProgress()
+  • progress.current
+  • progress.final
 
 ### Timer module
 
@@ -332,26 +332,26 @@ Asynchronous functions:
 
 ### Network module
 
-* Network.init(*ip*, *netmask*, *gateway*, *dns*)  
+* Network.init(*ip*, *netmask*, *gateway*, *dns*)
 ```js
-Network.init("192.168.0.10", "255.255.255.0", "192.168.0.1", "192.168.0.1"); //Static mode  
-Network.init(); //DHCP Mode, dynamic.  
+Network.init("192.168.0.10", "255.255.255.0", "192.168.0.1", "192.168.0.1"); //Static mode
+Network.init(); //DHCP Mode, dynamic.
 ```
 
-* var conf = Network.getConfig()  
+* var conf = Network.getConfig()
   Returns conf.ip, conf.netmask, conf.gateway, conf.dns.
-  
+
  * Network.get(address)
  * Network.post(address, query)
-  
-* Network.deinit()  
+
+* Network.deinit()
   Shutdown network module.
-  
+
 ### Socket module
 
-Construction:  
+Construction:
 
-* var s = new Socket(domain, type)  
+* var s = new Socket(domain, type)
 ```js
 var s = new Socket(AF_INET, SOCK_STREAM);
 ```

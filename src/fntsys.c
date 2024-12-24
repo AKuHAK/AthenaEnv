@@ -280,7 +280,7 @@ static int fntLoadSlot(font_t *font, const char* path)
 
     fntInitSlot(font);
 
-   
+
         buffer = readFile(path, -1, &bufferSize);
         if (!buffer) {
             printf("FNTSYS Font file loading failed: %s\n", path);
@@ -654,7 +654,7 @@ Coords fntGetTextSize(int id, const char* text) {
     Coords size;
     size.width = width;
     size.height = FNTSYS_CHAR_SIZE;
-	
+
 	return size;
 }
 

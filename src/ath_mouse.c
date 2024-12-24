@@ -86,7 +86,7 @@ JSModuleDef *athena_mouse_init(JSContext* ctx){
 int PS2MouseSetThres(u32 thres);
 u32 PS2MouseGetThres();
 int PS2MouseGetBoundary(int *minx, int *maxx, int *miny, int *maxy);
-int PS2MouseSetPosition(int x, int y); 
+int PS2MouseSetPosition(int x, int y);
 int PS2MouseReset();
 u32 PS2MouseEnum();
 int PS2MouseSetDblClickTime(u32 msec);

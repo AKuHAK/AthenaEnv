@@ -122,7 +122,7 @@ static JSValue athena_socket_recv(JSContext *ctx, JSValue this_val, int argc, JS
 static JSClassDef js_socket_class = {
     "Socket",
     //.finalizer = js_s_finalizer,
-}; 
+};
 
 static const JSCFunctionListEntry js_socket_proto_funcs[] = {
     JS_CFUNC_DEF("connect", 2, athena_socket_connect ),
@@ -136,19 +136,19 @@ static const JSCFunctionListEntry js_socket_proto_funcs[] = {
 static int js_socket_init(JSContext *ctx, JSModuleDef *m)
 {
     JSValue socket_proto, socket_class;
-    
+
     /* create the Point class */
     JS_NewClassID(&js_socket_class_id);
     JS_NewClass(JS_GetRuntime(ctx), js_socket_class_id, &js_socket_class);
 
     socket_proto = JS_NewObject(ctx);
     JS_SetPropertyFunctionList(ctx, socket_proto, js_socket_proto_funcs, countof(js_socket_proto_funcs));
-    
+
     socket_class = JS_NewCFunction2(ctx, athena_socket_ctor, "Socket", 2, JS_CFUNC_constructor, 0);
     /* set proto.constructor and ctor.prototype */
     JS_SetConstructor(ctx, socket_class, socket_proto);
     JS_SetClassProto(ctx, js_socket_class_id, socket_proto);
-                      
+
     JS_SetModuleExport(ctx, m, "Socket", socket_class);
     return 0;
 }

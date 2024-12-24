@@ -21,7 +21,7 @@ static JSValue athena_newT(JSContext *ctx, JSValue this_val, int argc, JSValueCo
 	Timer* new_timer = (Timer*)malloc(sizeof(Timer));
 	new_timer->tick = clock();
 	new_timer->isPlaying = true;
-	
+
 	return JS_NewUint32(ctx, (uint32_t)new_timer);
 }
 
