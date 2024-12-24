@@ -22,7 +22,13 @@ static JSValue athena_newT(JSContext *ctx, JSValue this_val, int argc, JSValueCo
 	new_timer->tick = clock();
 	new_timer->isPlaying = true;
 
-	return JS_NewUint32(ctx, (uint32_t)new_timer);
+	JSValue obj = JS_NewObjectClass(ctx, js_timer_class_id);
+	if (JS_IsException(obj)) {
+		free(new_timer);
+		return obj;
+	}
+	JS_SetOpaque(obj, new_timer);
+	return obj;
 }
 
 static JSValue athena_time(JSContext *ctx, JSValue this_val, int argc, JSValueConst *argv) {

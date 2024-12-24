@@ -182,8 +182,8 @@ untar(FILE *a, const char *path)
 }
 
 static JSValue athena_archiveopen(JSContext *ctx, JSValue this_val, int argc, JSValueConst *argv){
-    FILE* fp;
-    Archive* za = malloc(sizeof(Archive));
+    FILE* fp = NULL;
+    Archive* za = calloc(1, sizeof(Archive));
     char buf[100];
     char path_buf[512];
     int err;
@@ -202,6 +202,7 @@ static JSValue athena_archiveopen(JSContext *ctx, JSValue this_val, int argc, JS
             zip_error_to_str(buf, sizeof(buf), err, errno);
             printf("AthenaZip: can't open zip archive `%s': %s\n",
                 path, buf);
+            free(za);
             return JS_UNDEFINED;
         }
         za->type = ZIP_FILE;
@@ -251,7 +252,7 @@ static JSValue athena_archiveclose(JSContext *ctx, JSValue this_val, int argc, J
 }
 
 static JSValue athena_untar(JSContext *ctx, JSValue this_val, int argc, JSValueConst *argv){
-    FILE* fp;
+    FILE* fp = NULL;
     gzFile gzFp;
     char buf[256];
     unsigned char f_buf[8192];
@@ -269,7 +270,17 @@ static JSValue athena_untar(JSContext *ctx, JSValue this_val, int argc, JSValueC
         while(true) {
             bytes_read = gzread(gzFp, f_buf, 8192);
             total_bytes += bytes_read;
-            out = realloc(out, total_bytes);
+            unsigned char* temp = realloc(out, total_bytes);
+            if (temp == NULL) {
+                free(out);
+                if (fp != NULL) {
+                    fclose(fp);
+                }
+                gzclose(gzFp);
+                printf("Memory allocation failed\n");
+                return JS_UNDEFINED;
+            }
+            out = temp;
             memcpy((out+total_bytes-bytes_read), f_buf, bytes_read);
             if (bytes_read < 8192 && gzeof(gzFp)) {
                 fclose(fp);
@@ -299,7 +310,7 @@ static JSValue athena_untar(JSContext *ctx, JSValue this_val, int argc, JSValueC
 
 static JSValue athena_extractall(JSContext *ctx, JSValue this_val, int argc, JSValueConst *argv) {
     Archive* arc;
-    FILE* fp;
+    FILE* fp = NULL;
     int len = 0;
     long long sum;
     struct zip_file *zf;
@@ -315,7 +326,17 @@ static JSValue athena_extractall(JSContext *ctx, JSValue this_val, int argc, JSV
         while(true) {
             bytes_read = gzread(arc->fp, buf, 8192);
             total_bytes += bytes_read;
-            out = realloc(out, total_bytes);
+            unsigned char* temp = realloc(out, total_bytes);
+            if (temp == NULL) {
+                free(out);
+                if (fp != NULL) {
+                    fclose(fp);
+                }
+                gzclose(gzFp);
+                printf("Memory allocation failed\n");
+                return JS_UNDEFINED;
+            }
+            out = temp;
             memcpy((out+total_bytes-bytes_read), buf, bytes_read);
             if (bytes_read < 8192) {
                 if (gzeof(arc->fp)) {

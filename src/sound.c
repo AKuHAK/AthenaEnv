@@ -466,12 +466,16 @@ Sound* load_ogg(const char* path)
     if (oggFile == NULL) {
         printf("ogg: Failed to open Ogg file %s\n", path);
 		oggDeinit();
+        free(ogg->fp);
+        free(ogg);
         return -ENOENT;
     }
 
     if (ov_open_callbacks(oggFile, ogg->fp, NULL, 0, OV_CALLBACKS_DEFAULT) < 0) {
         printf("ogg: Input does not appear to be an Ogg bitstream.\n");
 		oggDeinit();
+        free(ogg->fp);
+        free(ogg);
         return -ENOENT;
     }
 

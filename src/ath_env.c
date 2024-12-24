@@ -55,13 +55,9 @@ static int qjs_handle_fh(JSContext *ctx, FILE *f, const char *filename, const ch
 	int retval = -1;
 
 	buf = (char *) malloc(1024);
-	if (!buf) {
-		if (buf) {
-			free(buf);
-			buf = NULL;
-		}
+	if (!buf)
 		return retval;
-	}
+
 	bufsz = 1024;
 	bufoff = 0;
 

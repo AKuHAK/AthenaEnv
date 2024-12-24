@@ -101,7 +101,7 @@ static JSValue athena_font_print(JSContext *ctx, JSValue this_val, int argc, JSV
 }
 
 static JSValue athena_font_gettextsize(JSContext *ctx, JSValue this_val, int argc, JSValueConst *argv) {
-    Coords size;
+    Coords size = {0};
     JSValue obj;
 
     JSFontData *font = JS_GetOpaque2(ctx, this_val, js_font_class_id);

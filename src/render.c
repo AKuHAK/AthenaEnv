@@ -556,7 +556,7 @@ int athena_process_xyz_rgbaq(GSPRIMPOINT *output, GSGLOBAL* gsGlobal, int count,
 
 	int center_x = gsGlobal->Width/2;
 	int center_y = gsGlobal->Height/2;
-	max_z = 1 << (z - 1);
+	max_z = 1U << (z - 1);
 
 	for (int i = 0; i < count; i++)
 	{
@@ -613,7 +613,7 @@ int athena_process_xyz_rgbaq_st(GSPRIMSTQPOINT *output, GSGLOBAL* gsGlobal, int 
 
 	int center_x = gsGlobal->Width/2;
 	int center_y = gsGlobal->Height/2;
-	max_z = 1 << (z - 1);
+	max_z = 1U << (z - 1);
 
 	for (int i = 0; i < count; i++)
 	{
