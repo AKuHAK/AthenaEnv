@@ -1,9 +1,10 @@
 #include <string.h>
 #include <kernel.h>
+#include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <stdio.h>
-#include <stdbool.h>
+#include <malloc.h>
 #include <errno.h>
 
 #include "include/sound.h"
@@ -451,7 +452,7 @@ Sound *load_ogg(const char *path) {
         oggDeinit();
         free(ogg->fp);
         free(ogg);
-        return -ENOENT;
+        return NULL;
     }
 
     if (ov_open_callbacks(oggFile, ogg->fp, NULL, 0, OV_CALLBACKS_DEFAULT) < 0) {
@@ -459,7 +460,7 @@ Sound *load_ogg(const char *path) {
         oggDeinit();
         free(ogg->fp);
         free(ogg);
-        return -ENOENT;
+        return NULL;
     }
 
     vorbis_info *vi = ov_info(ogg->fp, -1);

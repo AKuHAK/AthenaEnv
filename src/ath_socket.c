@@ -3,6 +3,8 @@
 #include "ath_env.h"
 #include <netman.h>
 #include <ps2ip.h>
+#include <netdb.h>
+#include <arpa/inet.h>
 #include <malloc.h>
 
 typedef struct {

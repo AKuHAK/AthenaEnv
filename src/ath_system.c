@@ -152,9 +152,11 @@ static JSValue athena_dir(JSContext *ctx, JSValue this_val, int argc, JSValueCon
         while ((dir = readdir(d)) != NULL) {
             JSValue obj = JS_NewObject(ctx);
 
+            struct stat st;
+            stat(dir->d_name, &st);
             JS_DefinePropertyValueStr(ctx, obj, "name", JS_NewString(ctx, dir->d_name), JS_PROP_C_W_E);
-            JS_DefinePropertyValueStr(ctx, obj, "size", JS_NewUint32(ctx, dir->d_stat.st_size), JS_PROP_C_W_E);
-            JS_DefinePropertyValueStr(ctx, obj, "dir", JS_NewBool(ctx, S_ISDIR(dir->d_stat.st_mode)), JS_PROP_C_W_E);
+            JS_DefinePropertyValueStr(ctx, obj, "size", JS_NewUint32(ctx, st.st_size), JS_PROP_C_W_E);
+            JS_DefinePropertyValueStr(ctx, obj, "dir", JS_NewBool(ctx, S_ISDIR(st.st_mode)), JS_PROP_C_W_E);
 
             JS_DefinePropertyValueUint32(ctx, arr, i++, obj, JS_PROP_C_W_E);
         }
@@ -295,10 +297,7 @@ static JSValue athena_getFreeMemory(JSContext *ctx, JSValue this_val, int argc, 
 
 static JSValue athena_exit(JSContext *ctx, JSValue this_val, int argc, JSValueConst *argv) {
     if (argc != 0) return JS_ThrowSyntaxError(ctx, "System.exitToBrowser");
-    asm volatile(
-        "li $3, 0x04;"
-        "syscall;"
-        "nop;");
+    exit(0);
     return JS_UNDEFINED;
 }
 

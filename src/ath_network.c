@@ -1,6 +1,8 @@
 #include "ath_env.h"
 #include <netman.h>
 #include <ps2ip.h>
+#include <netdb.h>
+#include <arpa/inet.h>
 #include <curl/curl.h>
 
 struct MemoryStruct {
@@ -139,10 +141,10 @@ static JSValue athena_nw_init(JSContext *ctx, JSValue this_val, int argc, JSValu
     }
 
     if (argc == 4) {
-        IP.addr = ipaddr_addr(JS_ToCString(ctx, argv[0]));
-        NM.addr = ipaddr_addr(JS_ToCString(ctx, argv[1]));
-        GW.addr = ipaddr_addr(JS_ToCString(ctx, argv[2]));
-        DNS.addr = ipaddr_addr(JS_ToCString(ctx, argv[3]));
+        IP.addr = inet_addr(JS_ToCString(ctx, argv[0]));
+        NM.addr = inet_addr(JS_ToCString(ctx, argv[1]));
+        GW.addr = inet_addr(JS_ToCString(ctx, argv[2]));
+        DNS.addr = inet_addr(JS_ToCString(ctx, argv[3]));
     }
 
     ps2ipInit(&IP, &NM, &GW);
@@ -187,7 +189,7 @@ static JSValue athena_nw_deinit(JSContext *ctx, JSValue this_val, int argc, JSVa
 
 static JSValue athena_nw_gethostbyname(JSContext *ctx, JSValue this_val, int argc, JSValueConst *argv) {
     const char *host = JS_ToCString(ctx, argv[0]);
-    struct hostent *host_address = lwip_gethostbyname(host);
+    struct hostent *host_address = gethostbyname(host);
 
     if (host_address == NULL) return JS_ThrowSyntaxError(ctx, "Unable to resolve address.\n");
 

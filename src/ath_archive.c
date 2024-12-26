@@ -1,5 +1,6 @@
 #include "ath_env.h"
 #include <errno.h>
+#include <sys/stat.h>
 #include <zip.h>
 #include <zlib.h>
 
@@ -307,7 +308,6 @@ static JSValue athena_extractall(JSContext *ctx, JSValue this_val, int argc, JSV
                 if (fp != NULL) {
                     fclose(fp);
                 }
-                gzclose(gzFp);
                 printf("Memory allocation failed\n");
                 return JS_UNDEFINED;
             }

@@ -35,11 +35,11 @@ RESET_IOP = 1
 
 EE_LIBS = -L$(PS2SDK)/ports/lib -L$(PS2DEV)/gsKit/lib/ -Lmodules/ds34bt/ee/ -Lmodules/ds34usb/ee/ -lps2_drivers -lmc -lpatches -ldebug -lmath3d -ljpeg -lfreetype -lgskit_toolkit -lgskit -ldmakit -lpng -lz -lelf-loader -lds34bt -lds34usb -lnetman -lps2ip -lcurl -lwolfssl -lkbd -lmouse -lvorbisfile -lvorbis -logg -llzma -lzip
 
-EE_INCS += -I$(PS2DEV)/gsKit/include -I$(PS2SDK)/ports/include -I$(PS2SDK)/ports/include/freetype2 -I$(PS2SDK)/ports/include/zlib
+EE_INCS += -I$(PS2DEV)/gsKit/include -I$(PS2SDK)/ports/include -I$(PS2SDK)/ports/include/freetype2 -I$(PS2SDK)/ports/include/zlib -I$(PS2SDK)/iop/include/tcpip.h
 
 EE_INCS += -Imodules/ds34bt/ee -Imodules/ds34usb/ee
 
-EE_CFLAGS += -Wno-sign-compare -fno-strict-aliasing -fno-exceptions -DPS2IP_DNS -DCONFIG_VERSION=\"$(shell cat VERSION)\" -D__TM_GMTOFF=tm_gmtoff -DPATH_MAX=256 -DEMSCRIPTEN
+EE_CFLAGS += -Wno-sign-compare -Wno-incompatible-pointer-types -Wno-int-conversion -fno-strict-aliasing -fno-exceptions -DPS2IP_DNS -DCONFIG_VERSION=\"$(shell cat VERSION)\" -D__TM_GMTOFF=tm_gmtoff -DPATH_MAX=256 -DEMSCRIPTEN
 
 ifeq ($(RESET_IOP),1)
 EE_CFLAGS += -DRESET_IOP
@@ -49,7 +49,7 @@ ifeq ($(DEBUG),1)
 EE_CFLAGS += -DDEBUG
 endif
 
-BIN2S = $(PS2SDK)/bin/bin2s
+BIN2C = $(PS2SDK)/bin/bin2c
 
 EXT_LIBS = modules/ds34usb/ee/libds34usb.a modules/ds34bt/ee/libds34bt.a
 
@@ -75,9 +75,9 @@ modules/ds34bt/iop/ds34bt.irx: modules/ds34bt/iop
 	echo "Building DS3/4 Bluetooth Driver..."
 	$(MAKE) -C $<
 
-src/ds34bt.s: modules/ds34bt/iop/ds34bt.irx
+src/ds34bt.c: modules/ds34bt/iop/ds34bt.irx
 	echo "Embedding DS3/4 Bluetooth Driver..."
-	$(BIN2S) $< $@ ds34bt_irx
+	$(BIN2C) $< $@ ds34bt_irx
 
 modules/ds34usb/ee/libds34usb.a: modules/ds34usb/ee
 	echo "Building DS3/4 USB Library..."
@@ -87,25 +87,25 @@ modules/ds34usb/iop/ds34usb.irx: modules/ds34usb/iop
 	echo "Building DS3/4 USB Driver..."
 	$(MAKE) -C $<
 
-src/ds34usb.s: modules/ds34usb/iop/ds34usb.irx
+src/ds34usb.c: modules/ds34usb/iop/ds34usb.irx
 	echo "Embedding DS3/4 USB Driver..."
-	$(BIN2S) $< $@ ds34usb_irx
+	$(BIN2C) $< $@ ds34usb_irx
 
-src/NETMAN.s: $(PS2SDK)/iop/irx/netman.irx
+src/NETMAN.c: $(PS2SDK)/iop/irx/netman.irx
 	echo "Embedding NETMAN Driver..."
-	$(BIN2S) $< $@ NETMAN_irx
+	$(BIN2C) $< $@ NETMAN_irx
 
-src/SMAP.s: $(PS2SDK)/iop/irx/smap.irx
+src/SMAP.c: $(PS2SDK)/iop/irx/smap.irx
 	echo "Embedding SMAP Driver..."
-	$(BIN2S) $< $@ SMAP_irx
+	$(BIN2C) $< $@ SMAP_irx
 
-src/ps2kbd.s: $(PS2SDK)/iop/irx/ps2kbd.irx
+src/ps2kbd.c: $(PS2SDK)/iop/irx/ps2kbd.irx
 	echo "Embedding Keyboard Driver..."
-	$(BIN2S) $< $@ ps2kbd_irx
+	$(BIN2C) $< $@ ps2kbd_irx
 
-src/ps2mouse.s: $(PS2SDK)/iop/irx/ps2mouse.irx
+src/ps2mouse.c: $(PS2SDK)/iop/irx/ps2mouse.irx
 	echo "Embedding Mouse Driver..."
-	$(BIN2S) $< $@ ps2mouse_irx
+	$(BIN2C) $< $@ ps2mouse_irx
 
 #-------------------------- App Content ---------------------------#
 
@@ -136,16 +136,16 @@ clean:
 	rm -f $(EE_OBJS)
 
 	echo "Cleaning DS3/4 Drivers..."
-	rm -f src/ds34bt.s
-	rm -f src/ds34usb.s
+	rm -f src/ds34bt.c
+	rm -f src/ds34usb.c
 	$(MAKE) -C modules/ds34usb clean
 	$(MAKE) -C modules/ds34bt clean
 
 	echo "Cleaning Network Driver..."
-	rm -f src/NETMAN.s
-	rm -f src/SMAP.s
-	rm -f src/ps2kbd.s
-	rm -f src/ps2mouse.s
+	rm -f src/NETMAN.c
+	rm -f src/SMAP.c
+	rm -f src/ps2kbd.c
+	rm -f src/ps2mouse.c
 
 rebuild: clean all
 

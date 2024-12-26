@@ -28,14 +28,14 @@ typedef struct {
     float n3;
 } vertex;
 
-typedef struct {
+typedef struct vertexList {
     vertex v1;
     vertex v2;
     vertex v3;
     struct vertexList *next;
 } vertexList;
 
-typedef struct {
+typedef struct rawVertexList {
     vertex *vert;
     struct rawVertexList *next;
 } rawVertexList;
@@ -568,10 +568,10 @@ int athena_process_xyz_rgbaq(GSPRIMPOINT *output, GSGLOBAL *gsGlobal, int count,
             q = 1 / vertices[i].w;
         }
 
-        output[i].rgbaq.color.r = (int) (colours[i].r * 128.0f);
-        output[i].rgbaq.color.g = (int) (colours[i].g * 128.0f);
-        output[i].rgbaq.color.b = (int) (colours[i].b * 128.0f);
-        output[i].rgbaq.color.a = 0x80;
+        output[i].rgbaq.color.components.r = (int) (colours[i].r * 128.0f);
+        output[i].rgbaq.color.components.g = (int) (colours[i].g * 128.0f);
+        output[i].rgbaq.color.components.b = (int) (colours[i].b * 128.0f);
+        output[i].rgbaq.color.components.a = 0x80;
         output[i].rgbaq.color.q = q;
         output[i].rgbaq.tag = GS_RGBAQ;
 
@@ -619,10 +619,10 @@ int athena_process_xyz_rgbaq_st(GSPRIMSTQPOINT *output, GSGLOBAL *gsGlobal, int 
             q = 1 / vertices[i].w;
         }
 
-        output[i].rgbaq.color.r = (int) (colours[i].r * 128.0f);
-        output[i].rgbaq.color.g = (int) (colours[i].g * 128.0f);
-        output[i].rgbaq.color.b = (int) (colours[i].b * 128.0f);
-        output[i].rgbaq.color.a = 0x80;
+        output[i].rgbaq.color.components.r = (int) (colours[i].r * 128.0f);
+        output[i].rgbaq.color.components.g = (int) (colours[i].g * 128.0f);
+        output[i].rgbaq.color.components.b = (int) (colours[i].b * 128.0f);
+        output[i].rgbaq.color.components.a = 0x80;
         output[i].rgbaq.color.q = q;
         output[i].rgbaq.tag = GS_RGBAQ;
 

@@ -11,3 +11,9 @@ src/main.js.c
 !.gitattributes
 !.github
 !.clang-format
+src/ds34bt.c
+src/ds34usb.c
+src/NETMAN.c
+src/ps2kbd.c
+src/ps2mouse.c
+src/SMAP.c
