@@ -116,7 +116,7 @@ static int ethApplyIPConfig(int use_dhcp, const struct ip4_addr *ip, const struc
 
             // Update settings.
             result = ps2ip_setconfig(&ip_info);
-            if (!use_dhcp) dns_setserver(0, dns);
+            if (!use_dhcp) dns_setserver(0, (ip_addr_t *) dns);
         } else
             result = 0;
     }

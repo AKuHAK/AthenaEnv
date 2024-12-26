@@ -120,6 +120,6 @@ JSModuleDef *athena_imagelist_init(JSContext *ctx) {
     if (!m) return NULL;
     JS_AddModuleExport(ctx, m, "ImageList");
 
-    printf("AthenaEnv: %s module pushed at 0x%x\n", "ImageList", m);
+    printf("AthenaEnv: %s module pushed at %p\n", "ImageList", (void *) m);
     return m;
 }

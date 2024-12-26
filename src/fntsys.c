@@ -610,7 +610,7 @@ Coords fntGetTextSize(int id, const char *text) {
 
     Coords size;
     size.width = width;
-    size.height = FNTSYS_CHAR_SIZE;
+    size.height = height;
 
     return size;
 }

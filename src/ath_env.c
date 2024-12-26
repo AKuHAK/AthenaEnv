@@ -15,7 +15,7 @@ JSModuleDef *athena_push_module(JSContext *ctx, JSModuleInitFunc *func, const JS
     if (!m) return NULL;
     JS_AddModuleExportList(ctx, m, func_list, len);
 
-    printf("AthenaEnv: %s module pushed at 0x%x\n", module_name, m);
+    printf("AthenaEnv: %s module pushed at %p\n", module_name, (void *) m);
     return m;
 }
 
@@ -272,10 +272,10 @@ const char *runScript(const char *script, bool isBuffer) {
         JSValue val = JS_GetException(ctx);
         const char *exception = JS_ToCString(ctx, val);
         const char *stack = JS_ToCString(ctx, JS_GetPropertyStr(ctx, val, "stack"));
-        const char *error = malloc(strlen(exception) + strlen(stack) + 2);
-        strcpy(error, exception);
-        strcat(error, "\n");
-        strcat(error, stack);
+        char *error = malloc(strlen(exception) + strlen(stack) + 2);
+        strcpy((char *) error, exception);
+        strcat((char *) error, "\n");
+        strcat((char *) error, stack);
         JS_FreeContext(ctx);
         JS_FreeRuntime(rt);
         return error;

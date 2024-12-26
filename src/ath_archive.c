@@ -191,7 +191,6 @@ static JSValue athena_archiveopen(JSContext *ctx, JSValue this_val, int argc, JS
 }
 
 static JSValue athena_archiveget(JSContext *ctx, JSValue this_val, int argc, JSValueConst *argv) {
-    int len;
     Archive *za;
     struct zip_stat sb;
     JSValue arr, obj;

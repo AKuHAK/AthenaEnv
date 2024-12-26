@@ -623,7 +623,7 @@ static JSValue athena_sifloadmodule(JSContext *ctx, JSValue this_val, int argc, 
 static JSValue athena_sifloadmodulebuffer(JSContext *ctx, JSValue this_val, int argc, JSValueConst *argv) {
     if (argc != 1 && argc != 3) return JS_ThrowSyntaxError(ctx, "wrong number of arguments");
     size_t size = 0;
-    void *ptr = JS_ToCStringLen(ctx, &size, argv[0]);
+    const void *ptr = JS_ToCStringLen(ctx, &size, argv[0]);
 
     int arg_len = 0;
     const char *args = NULL;

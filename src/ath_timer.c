@@ -17,7 +17,7 @@ typedef struct {
 } Timer;
 
 static JSValue athena_newT(JSContext *ctx, JSValue this_val, int argc, JSValueConst *argv) {
-    JSClassID js_timer_class_id;
+    JSClassID js_timer_class_id = 0;
     if (argc != 0) return JS_ThrowSyntaxError(ctx, "wrong number of arguments");
     Timer *new_timer = (Timer *) malloc(sizeof(Timer));
     new_timer->tick = clock();

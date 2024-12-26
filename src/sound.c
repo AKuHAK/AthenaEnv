@@ -98,8 +98,6 @@ Sound *load_wav(const char *path) {
     t_wave header;
 
     int ret;
-    int err;
-    int bytes;
 
     wav->fp = fopen(path, "rb");
     fread(&header, 1, sizeof(t_wave), wav->fp);
@@ -111,9 +109,13 @@ Sound *load_wav(const char *path) {
     wav->type = WAV_AUDIO;
 
     if (!wav_started) {
-        int ret = init_wav();
+        ret = init_wav();
         if (ret >= 0) {
             wav_started = true;
+        } else {
+            fclose(wav->fp);
+            free(wav);
+            return ret;
         }
     }
 
