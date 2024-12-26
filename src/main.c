@@ -52,10 +52,12 @@ char boot_path[255];
 static void prepare_IOP() {
     printf("AthenaEnv: Starting IOP Reset...\n");
     SifInitRpc(0);
-    #if defined(RESET_IOP)
-    while (!SifIopReset("", 0)){};
-    #endif
-    while (!SifIopSync()){};
+#if defined(RESET_IOP)
+    while (!SifIopReset("", 0)) {
+    };
+#endif
+    while (!SifIopSync()) {
+    };
     SifInitRpc(0);
     printf("AthenaEnv: IOP reset done.\n");
 
@@ -74,8 +76,7 @@ static void deinit_drivers(bool deinit_powerOff) {
     deinit_memcard_driver(true);
     deinit_fileXio_driver();
 
-    if (deinit_powerOff)
-        deinit_poweroff_driver();
+    if (deinit_powerOff) deinit_poweroff_driver();
 }
 
 static void prepare_for_exit(bool deinit_powerOff) {
@@ -84,39 +85,36 @@ static void prepare_for_exit(bool deinit_powerOff) {
     deinit_drivers(deinit_powerOff);
 }
 
-static void poweroffHandler(void *arg)
-{
-   prepare_for_exit(false);
-   poweroffShutdown();
+static void poweroffHandler(void *arg) {
+    prepare_for_exit(false);
+    poweroffShutdown();
 }
 
-void initMC()
-{
-   int ret;
-   // mc variables
-   int mc_Type, mc_Free, mc_Format;
+void initMC() {
+    int ret;
+    // mc variables
+    int mc_Type, mc_Free, mc_Format;
 
-   printf("initMC: Initializing Memory Card\n");
+    printf("initMC: Initializing Memory Card\n");
 
-   ret = mcInit(MC_TYPE_XMC);
+    ret = mcInit(MC_TYPE_XMC);
 
-   if( ret < 0 ) {
-	printf("initMC: failed to initialize memcard server.\n");
-   } else {
-       printf("initMC: memcard server started successfully.\n");
-   }
+    if (ret < 0) {
+        printf("initMC: failed to initialize memcard server.\n");
+    } else {
+        printf("initMC: memcard server started successfully.\n");
+    }
 
-   // Since this is the first call, -1 should be returned.
-   // makes me sure that next ones will work !
-   mcGetInfo(0, 0, &mc_Type, &mc_Free, &mc_Format);
-   mcSync(MC_WAIT, NULL, &ret);
+    // Since this is the first call, -1 should be returned.
+    // makes me sure that next ones will work !
+    mcGetInfo(0, 0, &mc_Type, &mc_Free, &mc_Format);
+    mcSync(MC_WAIT, NULL, &ret);
 }
-
 
 static void init_drivers() {
     int ds3pads = 1;
 
-    //init_ps2_filesystem_driver();
+    // init_ps2_filesystem_driver();
     init_poweroff_driver();
     init_fileXio_driver();
     init_memcard_driver(true);
@@ -128,8 +126,8 @@ static void init_drivers() {
 
     init_joystick_driver(true);
     init_audio_driver();
-    SifExecModuleBuffer(&ds34usb_irx, size_ds34usb_irx, 4, (char *)&ds3pads, NULL);
-    SifExecModuleBuffer(&ds34bt_irx, size_ds34bt_irx, 4, (char *)&ds3pads, NULL);
+    SifExecModuleBuffer(&ds34usb_irx, size_ds34usb_irx, 4, (char *) &ds3pads, NULL);
+    SifExecModuleBuffer(&ds34bt_irx, size_ds34bt_irx, 4, (char *) &ds3pads, NULL);
 
     SifExecModuleBuffer(&ps2kbd_irx, size_ps2kbd_irx, 0, NULL, NULL);
     SifExecModuleBuffer(&ps2mouse_irx, size_ps2mouse_irx, 0, NULL, NULL);
@@ -150,34 +148,30 @@ int main(int argc, char **argv) {
     waitUntilDeviceIsReady(boot_path);
 
     init_taskman();
-	init_graphics();
+    init_graphics();
     loadFontM();
 
-	const char* errMsg;
+    const char *errMsg;
 
-    while(true)
-    {
+    while (true) {
         errMsg = runScript("main.js", false);
 
         gsKit_clear_screens();
 
-        if (errMsg != NULL)
-        {
+        if (errMsg != NULL) {
             printf("AthenaEnv ERROR!\n%s", errMsg);
-        	while (!isButtonPressed(PAD_START)) {
-				clearScreen(GS_SETREG_RGBAQ(0x20,0x60,0xB0,0x80,0x00));
-				printFontMText("AthenaEnv ERROR!", 15.0f, 15.0f, 0.9f, 0x80808080);
-				printFontMText(errMsg, 15.0f, 80.0f, 0.6f, 0x80808080);
-		   		printFontMText("\nPress [start] to restart\n", 15.0f, 400.0f, 0.6f, 0x80808080);
-				flipScreen();
-			}
+            while (!isButtonPressed(PAD_START)) {
+                clearScreen(GS_SETREG_RGBAQ(0x20, 0x60, 0xB0, 0x80, 0x00));
+                printFontMText("AthenaEnv ERROR!", 15.0f, 15.0f, 0.9f, 0x80808080);
+                printFontMText(errMsg, 15.0f, 80.0f, 0.6f, 0x80808080);
+                printFontMText("\nPress [start] to restart\n", 15.0f, 400.0f, 0.6f, 0x80808080);
+                flipScreen();
+            }
         }
-
     }
 
     prepare_for_exit(true);
 
-	// End program.
-	return 0;
-
+    // End program.
+    return 0;
 }

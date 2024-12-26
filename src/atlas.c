@@ -9,9 +9,8 @@
 #include "include/atlas.h"
 #include "include/graphics.h"
 
-static inline struct atlas_allocation_t *allocNew(int x, int y, size_t width, size_t height)
-{
-    struct atlas_allocation_t *al = (struct atlas_allocation_t *)malloc(sizeof(struct atlas_allocation_t));
+static inline struct atlas_allocation_t *allocNew(int x, int y, size_t width, size_t height) {
+    struct atlas_allocation_t *al = (struct atlas_allocation_t *) malloc(sizeof(struct atlas_allocation_t));
 
     al->x = x;
     al->y = y;
@@ -24,33 +23,26 @@ static inline struct atlas_allocation_t *allocNew(int x, int y, size_t width, si
     return al;
 }
 
-static inline void allocFree(struct atlas_allocation_t *alloc)
-{
-    if (!alloc)
-        return;
+static inline void allocFree(struct atlas_allocation_t *alloc) {
+    if (!alloc) return;
 
     // NOTE: If used on a tree component it
     // would have to be ensured pointers to freed
     // allocation are fixed
 
-    allocFree(alloc->leaf1); // safe
+    allocFree(alloc->leaf1);  // safe
     allocFree(alloc->leaf2);
 
     free(alloc);
 }
 
-#define ALLOC_FITS(alloc, width, height) \
-    ((alloc->w >= width) && (alloc->h >= height))
+#define ALLOC_FITS(alloc, width, height) ((alloc->w >= width) && (alloc->h >= height))
 
-#define ALLOC_ISFREE(alloc) \
-    ((!alloc->leaf1) && (!alloc->leaf2))
+#define ALLOC_ISFREE(alloc) ((!alloc->leaf1) && (!alloc->leaf2))
 
-
-static inline struct atlas_allocation_t *allocPlace(struct atlas_allocation_t *alloc, size_t width, size_t height)
-{
+static inline struct atlas_allocation_t *allocPlace(struct atlas_allocation_t *alloc, size_t width, size_t height) {
     // do we fit?
-    if (!ALLOC_FITS(alloc, width, height))
-        return NULL;
+    if (!ALLOC_FITS(alloc, width, height)) return NULL;
 
     if (ALLOC_ISFREE(alloc)) {
         // extra space
@@ -70,20 +62,17 @@ static inline struct atlas_allocation_t *allocPlace(struct atlas_allocation_t *a
     } else {
         // already occupied. Try children
         struct atlas_allocation_t *p = allocPlace(alloc->leaf1, width, height);
-        if (p)
-            return p;
+        if (p) return p;
 
         p = allocPlace(alloc->leaf2, width, height);
-        if (p)
-            return p;
+        if (p) return p;
     }
 
     return NULL;
 }
 
-atlas_t *atlasNew(size_t width, size_t height, u8 psm)
-{
-    atlas_t *atlas = (atlas_t *)malloc(sizeof(atlas_t));
+atlas_t *atlasNew(size_t width, size_t height, u8 psm) {
+    atlas_t *atlas = (atlas_t *) malloc(sizeof(atlas_t));
 
     atlas->allocation = allocNew(0, 0, width, height);
 
@@ -94,7 +83,7 @@ atlas_t *atlasNew(size_t width, size_t height, u8 psm)
 
     size_t txtsize = gsKit_texture_size(width, height, psm);
     atlas->surface.PSM = psm;
-    atlas->surface.Mem = (u32 *)memalign(128, txtsize);
+    atlas->surface.Mem = (u32 *) memalign(128, txtsize);
     atlas->surface.Vram = 0;
 
     // defaults to no clut
@@ -108,10 +97,8 @@ atlas_t *atlasNew(size_t width, size_t height, u8 psm)
     return atlas;
 }
 
-void atlasFree(atlas_t *atlas)
-{
-    if (!atlas)
-        return;
+void atlasFree(atlas_t *atlas) {
+    if (!atlas) return;
 
     allocFree(atlas->allocation);
     atlas->allocation = NULL;
@@ -123,8 +110,7 @@ void atlasFree(atlas_t *atlas)
     free(atlas);
 }
 
-static size_t pixelSize(u8 psm)
-{
+static size_t pixelSize(u8 psm) {
     switch (psm) {
         case GS_PSM_CT32:
             return 4;
@@ -142,16 +128,15 @@ static size_t pixelSize(u8 psm)
 }
 
 // copies the data into atlas
-static void atlasCopyData(atlas_t *atlas, struct atlas_allocation_t *al, size_t width, size_t height, const void *surface)
-{
+static void atlasCopyData(atlas_t *atlas, struct atlas_allocation_t *al, size_t width, size_t height,
+                          const void *surface) {
     int y;
     size_t ps = pixelSize(atlas->surface.PSM);
 
-    if (!ps)
-        return;
+    if (!ps) return;
 
-    const char *src = (const char *)surface;
-    char *data = (char *)atlas->surface.Mem;
+    const char *src = (const char *) surface;
+    char *data = (char *) atlas->surface.Mem;
 
     // advance the pointer to the atlas position start (first pixel)
     data += ps * (al->y * atlas->allocation->w + al->x);
@@ -165,15 +150,12 @@ static void atlasCopyData(atlas_t *atlas, struct atlas_allocation_t *al, size_t 
     }
 }
 
-struct atlas_allocation_t *atlasPlace(atlas_t *atlas, size_t width, size_t height, const void *surface)
-{
-    if (!surface)
-        return NULL;
+struct atlas_allocation_t *atlasPlace(atlas_t *atlas, size_t width, size_t height, const void *surface) {
+    if (!surface) return NULL;
 
     struct atlas_allocation_t *al = allocPlace(atlas->allocation, width + 1, height + 1);
 
-    if (!al)
-        return NULL;
+    if (!al) return NULL;
 
     atlasCopyData(atlas, al, width, height, surface);
 

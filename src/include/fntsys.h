@@ -12,7 +12,6 @@
 
 #define FNTSYS_CHAR_SIZE 26
 
-
 /// default (built-in) font id
 #define FNT_DEFAULT (0)
 /// Value returned on errors
@@ -60,6 +59,6 @@ typedef struct {
     int height;
 } Coords;
 
-Coords fntGetTextSize(int id, const char* text);
+Coords fntGetTextSize(int id, const char *text);
 
 #endif

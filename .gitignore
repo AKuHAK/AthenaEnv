@@ -10,3 +10,4 @@ src/main.js.c
 !.editorconfig
 !.gitattributes
 !.github
+!.clang-format

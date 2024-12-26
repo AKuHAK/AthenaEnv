@@ -1,17 +1,17 @@
 #include "ath_env.h"
 #include <libmouse.h>
 
-static JSValue athena_mouse_init_f(JSContext *ctx, JSValue this_val, int argc, JSValueConst *argv){
+static JSValue athena_mouse_init_f(JSContext *ctx, JSValue this_val, int argc, JSValueConst *argv) {
     int ret = PS2MouseInit();
     PS2MouseReset();
-	return JS_NewInt32(ctx, ret);
+    return JS_NewInt32(ctx, ret);
 }
 
-static JSValue athena_mouse_get(JSContext *ctx, JSValue this_val, int argc, JSValueConst *argv){
+static JSValue athena_mouse_get(JSContext *ctx, JSValue this_val, int argc, JSValueConst *argv) {
     JSValue obj;
-	PS2MouseData data;
+    PS2MouseData data;
 
-	PS2MouseRead(&data);
+    PS2MouseRead(&data);
 
     obj = JS_NewObject(ctx);
     JS_DefinePropertyValueStr(ctx, obj, "x", JS_NewInt32(ctx, data.x), JS_PROP_C_W_E);
@@ -19,48 +19,46 @@ static JSValue athena_mouse_get(JSContext *ctx, JSValue this_val, int argc, JSVa
     JS_DefinePropertyValueStr(ctx, obj, "wheel", JS_NewInt32(ctx, data.wheel), JS_PROP_C_W_E);
     JS_DefinePropertyValueStr(ctx, obj, "buttons", JS_NewUint32(ctx, data.buttons), JS_PROP_C_W_E);
 
-	return obj;
+    return obj;
 }
 
-static JSValue athena_mouse_setboundary(JSContext *ctx, JSValue this_val, int argc, JSValueConst *argv){
-	int minx, maxx, miny, maxy;
+static JSValue athena_mouse_setboundary(JSContext *ctx, JSValue this_val, int argc, JSValueConst *argv) {
+    int minx, maxx, miny, maxy;
 
     JS_ToInt32(ctx, &minx, argv[0]);
     JS_ToInt32(ctx, &maxx, argv[1]);
     JS_ToInt32(ctx, &miny, argv[2]);
     JS_ToInt32(ctx, &maxy, argv[3]);
 
-	return JS_NewInt32(ctx, PS2MouseSetBoundary(minx, maxx, miny, maxy));
+    return JS_NewInt32(ctx, PS2MouseSetBoundary(minx, maxx, miny, maxy));
 }
 
-static JSValue athena_mouse_getmode(JSContext *ctx, JSValue this_val, int argc, JSValueConst *argv){
-	return JS_NewUint32(ctx, PS2MouseGetReadMode());
+static JSValue athena_mouse_getmode(JSContext *ctx, JSValue this_val, int argc, JSValueConst *argv) {
+    return JS_NewUint32(ctx, PS2MouseGetReadMode());
 }
 
-static JSValue athena_mouse_setmode(JSContext *ctx, JSValue this_val, int argc, JSValueConst *argv){
+static JSValue athena_mouse_setmode(JSContext *ctx, JSValue this_val, int argc, JSValueConst *argv) {
     uint32_t mode;
     JS_ToUint32(ctx, &mode, argv[0]);
-	return JS_NewUint32(ctx, PS2MouseSetReadMode(mode));
+    return JS_NewUint32(ctx, PS2MouseSetReadMode(mode));
 }
 
-static JSValue athena_mouse_getaccel(JSContext *ctx, JSValue this_val, int argc, JSValueConst *argv){
-	return JS_NewFloat32(ctx, PS2MouseGetAccel());
+static JSValue athena_mouse_getaccel(JSContext *ctx, JSValue this_val, int argc, JSValueConst *argv) {
+    return JS_NewFloat32(ctx, PS2MouseGetAccel());
 }
 
-static JSValue athena_mouse_setaccel(JSContext *ctx, JSValue this_val, int argc, JSValueConst *argv){
+static JSValue athena_mouse_setaccel(JSContext *ctx, JSValue this_val, int argc, JSValueConst *argv) {
     float accel;
     JS_ToFloat32(ctx, &accel, argv[0]);
-	return JS_NewInt32(ctx, PS2MouseSetAccel(accel));
+    return JS_NewInt32(ctx, PS2MouseSetAccel(accel));
 }
 
-static JSValue athena_mouse_setpos(JSContext *ctx, JSValue this_val, int argc, JSValueConst *argv){
+static JSValue athena_mouse_setpos(JSContext *ctx, JSValue this_val, int argc, JSValueConst *argv) {
     int x, y;
     JS_ToInt32(ctx, &x, argv[0]);
     JS_ToInt32(ctx, &y, argv[1]);
-	return JS_NewInt32(ctx, PS2MouseSetPosition(x, y));
+    return JS_NewInt32(ctx, PS2MouseSetPosition(x, y));
 }
-
-
 
 static const JSCFunctionListEntry module_funcs[] = {
     JS_CFUNC_DEF("init", 0, athena_mouse_init_f),
@@ -73,12 +71,11 @@ static const JSCFunctionListEntry module_funcs[] = {
     JS_CFUNC_DEF("setPosition", 1, athena_mouse_setpos),
 };
 
-static int module_init(JSContext *ctx, JSModuleDef *m)
-{
+static int module_init(JSContext *ctx, JSModuleDef *m) {
     return JS_SetModuleExportList(ctx, m, module_funcs, countof(module_funcs));
 }
 
-JSModuleDef *athena_mouse_init(JSContext* ctx){
+JSModuleDef *athena_mouse_init(JSContext *ctx) {
     return athena_push_module(ctx, module_init, module_funcs, countof(module_funcs), "Mouse");
 }
 

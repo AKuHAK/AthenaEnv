@@ -11,22 +11,20 @@ static int actuators;
 
 int port, slot;
 
-int waitPadReady(int port, int slot)
-{
+int waitPadReady(int port, int slot) {
     int state;
     int lastState;
     char stateString[16];
 
     state = padGetState(port, slot);
     lastState = -1;
-    while((state != PAD_STATE_STABLE) && (state != PAD_STATE_FINDCTP1)) {
+    while ((state != PAD_STATE_STABLE) && (state != PAD_STATE_FINDCTP1)) {
         if (state != lastState) {
             padStateInt2String(state, stateString);
-            printf("Please wait, pad(%d,%d) is in state %s\n",
-                       port, slot, stateString);
+            printf("Please wait, pad(%d,%d) is in state %s\n", port, slot, stateString);
         }
         lastState = state;
-        state=padGetState(port, slot);
+        state = padGetState(port, slot);
     }
     // Were the pad ever 'out of sync'?
     if (lastState != -1) {
@@ -35,13 +33,10 @@ int waitPadReady(int port, int slot)
     return 0;
 }
 
-
 /*
  * initializePad()
  */
-int initializePad(int port, int slot)
-{
-
+int initializePad(int port, int slot) {
     int ret;
     int modes;
     int i;
@@ -61,8 +56,7 @@ int initializePad(int port, int slot)
         printf(")");
     }
 
-    printf("It is currently using mode %d\n",
-               padInfoMode(port, slot, PAD_MODECURID, 0));
+    printf("It is currently using mode %d\n", padInfoMode(port, slot, PAD_MODECURID, 0));
 
     // If modes == 0, this is not a Dual shock controller
     // (it has no actuator engines)
@@ -74,8 +68,7 @@ int initializePad(int port, int slot)
     // Verify that the controller has a DUAL SHOCK mode
     i = 0;
     do {
-        if (padInfoMode(port, slot, PAD_MODETABLE, i) == PAD_TYPE_DUALSHOCK)
-            break;
+        if (padInfoMode(port, slot, PAD_MODETABLE, i) == PAD_TYPE_DUALSHOCK) break;
         i++;
     } while (i < modes);
     if (i >= modes) {
@@ -104,21 +97,19 @@ int initializePad(int port, int slot)
 
     waitPadReady(port, slot);
     actuators = padInfoAct(port, slot, -1, 0);
-    printf("# of actuators: %d\n",actuators);
+    printf("# of actuators: %d\n", actuators);
 
     if (actuators != 0) {
-        actAlign[0] = 0;   // Enable small engine
-        actAlign[1] = 1;   // Enable big engine
+        actAlign[0] = 0;  // Enable small engine
+        actAlign[1] = 1;  // Enable big engine
         actAlign[2] = 0xff;
         actAlign[3] = 0xff;
         actAlign[4] = 0xff;
         actAlign[5] = 0xff;
 
         waitPadReady(port, slot);
-        printf("padSetActAlign: %d\n",
-                   padSetActAlign(port, slot, actAlign));
-    }
-    else {
+        printf("padSetActAlign: %d\n", padSetActAlign(port, slot, actAlign));
+    } else {
         printf("Did not find any actuators.\n");
     }
 
@@ -127,60 +118,52 @@ int initializePad(int port, int slot)
     return 1;
 }
 
-struct padButtonStatus readPad(int port, int slot)
-{
+struct padButtonStatus readPad(int port, int slot) {
     struct padButtonStatus buttons;
     int ret;
 
     do {
-    	ret = padGetState(port, slot);
-    } while((ret != PAD_STATE_STABLE) && (ret != PAD_STATE_FINDCTP1));
+        ret = padGetState(port, slot);
+    } while ((ret != PAD_STATE_STABLE) && (ret != PAD_STATE_FINDCTP1));
 
     ret = padRead(port, slot, &buttons);
 
     return buttons;
-
 }
 
-int isButtonPressed(u32 button)
-{
-   int ret;
-   u32 paddata;
+int isButtonPressed(u32 button) {
+    int ret;
+    u32 paddata;
 
-   struct padButtonStatus padbuttons;
+    struct padButtonStatus padbuttons;
 
-   while (((ret=padGetState(0, 0)) != PAD_STATE_STABLE)&&(ret!=PAD_STATE_FINDCTP1)&&(ret != PAD_STATE_DISCONN)); // more error check ?
-   if (padRead(0, 0, &padbuttons) != 0)
-   {
-    	paddata = 0xffff ^ padbuttons.btns;
-     	if(paddata & button)
-            return 1;
-   }
-   return 0;
-
+    while (((ret = padGetState(0, 0)) != PAD_STATE_STABLE) && (ret != PAD_STATE_FINDCTP1) &&
+           (ret != PAD_STATE_DISCONN));  // more error check ?
+    if (padRead(0, 0, &padbuttons) != 0) {
+        paddata = 0xffff ^ padbuttons.btns;
+        if (paddata & button) return 1;
+    }
+    return 0;
 }
 
-void pad_init()
-{
+void pad_init() {
     int ret;
 
     padInit(0);
 
-    port = 0; // 0 -> Connector 1, 1 -> Connector 2
-    slot = 0; // Always zero if not using multitap
+    port = 0;  // 0 -> Connector 1, 1 -> Connector 2
+    slot = 0;  // Always zero if not using multitap
 
     printf("PortMax: %d\n", padGetPortMax());
     printf("SlotMax: %d\n", padGetSlotMax(port));
 
-
-    if((ret = padPortOpen(port, slot, padBuf)) == 0) {
+    if ((ret = padPortOpen(port, slot, padBuf)) == 0) {
         printf("padOpenPort failed: %d\n", ret);
         SleepThread();
     }
 
-    if(!initializePad(port, slot)) {
+    if (!initializePad(port, slot)) {
         printf("pad initalization failed!\n");
         SleepThread();
     }
 }
-
