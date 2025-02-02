@@ -3,28 +3,28 @@
 define HEADER
 
 :=.                                                      .=:
- :#+.                                                  .+%- 
-  :#%+                                                =%#:  
-   .#%#-                                            -#%#.   
-     *%%#:                                        :#%%*     
-      #%%%*.                                    .+%%%#      
-      -%%%%%+.                                 +%%%%%-      
-      :%%%%%%%+.                            .+%%%%%%%:      
-      -%%%%%%%%%*=.                      .=*%%%%%%%%%=      
-      #%%#*++*#%%%%#=.                .=#%%%%#*++*#%%#      
-     -%*:       .-+%%%*:            :*%%%*-.       .*%=     
-    :%+        ..   :+#%+.         +%#+:   ..        +%-    
-    ##          .--    :+#:      :#*:    --.          #%    
-   -%+            .+-    .=-    -=.    -+.            +%-   
-   -%=      .:---==-**:              .**-==---:.      =%-   
-   .%=   .:-%=   %%%%%#-            -#%%%%%   =%-:.   =%:   
-    *#      =*   :*##+. ::        .: .+##*:   *=      #*    
-    .#-      =*.       :=          =:       .*=      -#.    
-      +-       -++=====.            .=====++-       -+      
-       :-.                                        .-:            
+ :#+.                                                  .+%-
+  :#%+                                                =%#:
+   .#%#-                                            -#%#.
+     *%%#:                                        :#%%*
+      #%%%*.                                    .+%%%#
+      -%%%%%+.                                 +%%%%%-
+      :%%%%%%%+.                            .+%%%%%%%:
+      -%%%%%%%%%*=.                      .=*%%%%%%%%%=
+      #%%#*++*#%%%%#=.                .=#%%%%#*++*#%%#
+     -%*:       .-+%%%*:            :*%%%*-.       .*%=
+    :%+        ..   :+#%+.         +%#+:   ..        +%-
+    ##          .--    :+#:      :#*:    --.          #%
+   -%+            .+-    .=-    -=.    -+.            +%-
+   -%=      .:---==-**:              .**-==---:.      =%-
+   .%=   .:-%=   %%%%%#-            -#%%%%%   =%-:.   =%:
+    *#      =*   :*##+. ::        .: .+##*:   *=      #*
+    .#-      =*.       :=          =:       .*=      -#.
+      +-       -++=====.            .=====++-       -+
+       :-.                                        .-:
 
-                    AthenaEnv project                                                               
-                                                                                
+                    AthenaEnv project
+
 endef
 export HEADER
 
@@ -48,12 +48,11 @@ NETWORK ?= 1
 KEYBOARD ?= 1
 MOUSE ?= 1
 CAMERA ?= 0
+PADEMU ?= 0
 
-EE_LIBS = -L$(PS2SDK)/ports/lib -L$(PS2DEV)/gsKit/lib/ -Lmodules/ds34bt/ee/ -Lmodules/ds34usb/ee/ -lmc -lpad -laudsrv -lpatches -ldebug -lmath3d -ljpeg -lfreetype -lgskit_toolkit -lgskit -ldmakit -lpng -lz -lds34bt -lds34usb -lnetman -lps2ip -lcurl -lwolfssl -lkbd -lmouse -lvorbisfile -lvorbis -logg -llzma -lzip -lfileXio -lelf-loader-nocolour -lerl
+EE_LIBS = -L$(PS2SDK)/ports/lib -lmc -lpad -lpatches -ldebug -lz -llzma -lzip -lfileXio -lelf-loader-nocolour -lerl
 
-EE_INCS += -I$(PS2DEV)/gsKit/include -I$(PS2SDK)/ports/include -I$(PS2SDK)/ports/include/freetype2 -I$(PS2SDK)/ports/include/zlib -Isrc/readini/include
-
-EE_INCS += -Imodules/ds34bt/ee -Imodules/ds34usb/ee
+EE_INCS += -I$(PS2SDK)/ports/include -I$(PS2SDK)/ports/include/zlib -Isrc/readini/include
 
 EE_CFLAGS += -Wno-sign-compare -fno-strict-aliasing -fno-exceptions -fpermissive -DCONFIG_VERSION=\"$(shell cat VERSION)\" -D__TM_GMTOFF=tm_gmtoff -DPATH_MAX=256 -DPS2
 ifeq ($(RESET_IOP),1)
@@ -69,10 +68,8 @@ EE_DVP = dvp-as
 EE_VCL = vcl
 EE_VCLPP = vclpp
 
-EXT_LIBS = modules/ds34usb/ee/libds34usb.a modules/ds34bt/ee/libds34bt.a
-
 JS_CORE = quickjs/cutils.o quickjs/libbf.o quickjs/libregexp.o quickjs/libunicode.o \
-				 quickjs/realpath.o quickjs/quickjs.o quickjs/quickjs-libc.o 
+				 quickjs/realpath.o quickjs/quickjs.o quickjs/quickjs-libc.o
 
 VU1_MPGS = draw_3D_pvc.o draw_3D_pvc_notex.o \
            draw_3D_colors.o draw_3D_colors_notex.o \
@@ -80,30 +77,42 @@ VU1_MPGS = draw_3D_pvc.o draw_3D_pvc_notex.o \
            draw_3D_lights.o draw_3D_lights_notex.o \
            draw_3D_spec.o draw_3D_spec_notex.o
 
-APP_CORE = main.o bootlogo.o vif.o athena_math.o memory.o ee_tools.o module_system.o taskman.o pad.o system.o strUtils.o 
+APP_CORE = main.o bootlogo.o vif.o athena_math.o memory.o ee_tools.o module_system.o taskman.o pad.o system.o strUtils.o
 
 INI_READER = readini/src/readini.o
 
-ATHENA_MODULES = ath_env.o ath_physics.o ath_vector.o ath_pads.o ath_system.o ath_archive.o ath_timer.o ath_task.o 
+ATHENA_MODULES = ath_env.o ath_physics.o ath_vector.o ath_pads.o ath_system.o ath_archive.o ath_timer.o ath_task.o
 
 IOP_MODULES = iomanx.o filexio.o sio2man.o mcman.o mcserv.o padman.o  \
-			  usbd.o bdm.o bdmfs_fatfs.o usbmass_bd.o cdfs.o ds34bt.o \
-			  ds34usb.o freeram.o ps2dev9.o mtapman.o poweroff.o ps2atad.o \
-			  ps2hdd.o ps2fs.o
+			  mtapman.o usbd.o bdm.o bdmfs_fatfs.o usbmass_bd.o cdfs.o \
+			  ps2hdd.o ps2fs.o ps2dev9.o ps2atad.o poweroff.o freeram.o
 
 EMBEDDED_ASSETS = quicksand_regular.o owl_indices.o owl_palette.o
 
+EE_OBJS = $(APP_CORE) $(INI_READER) $(JS_CORE) $(ATHENA_MODULES) $(IOP_MODULES) $(EMBEDDED_ASSETS) # group them all
+
 ifeq ($(GRAPHICS),1)
+  EE_LIBS += -L$(PS2DEV)/gsKit/lib/ -lmath3d -ljpeg -lfreetype -lgskit_toolkit -lgskit -ldmakit -lpng
+  EE_INCS +=  -I$(PS2DEV)/gsKit/include -I$(PS2SDK)/ports/include/freetype2
   EE_CFLAGS += -DATHENA_GRAPHICS
   APP_CORE += graphics.o atlas.o fntsys.o render.o camera.o calc_3d.o fast_obj/fast_obj.o
-  ATHENA_MODULES += ath_color.o ath_font.o ath_render.o ath_lights.o ath_3dcamera.o ath_screen.o ath_image.o ath_imagelist.o ath_shape.o 
+  ATHENA_MODULES += ath_color.o ath_font.o ath_render.o ath_lights.o ath_3dcamera.o ath_screen.o ath_image.o ath_imagelist.o ath_shape.o
+  EE_OBJS += $(VU1_MPGS)
+endif
+
+ifeq ($(PADEMU),1)
+  EE_CFLAGS += -DATHENA_PADEMU
+  EE_INCS += -Imodules/ds34bt/ee -Imodules/ds34usb/ee
+  EE_LIBS += -Lmodules/ds34bt/ee/ -Lmodules/ds34usb/ee/ -lds34bt -lds34usb
+  IOP_MODULES += ds34usb.o ds34bt.o
 endif
 
 ifeq ($(AUDIO),1)
   EE_CFLAGS += -DATHENA_AUDIO
-  APP_CORE += sound.o audsrv.o 
-  ATHENA_MODULES += ath_sound.o 
-  IOP_MODULES += libsd.o 
+  APP_CORE += sound.o audsrv.o
+  ATHENA_MODULES += ath_sound.o
+  IOP_MODULES += libsd.o
+  EE_LIBS += -laudsrv -lvorbisfile -lvorbis -logg
 endif
 
 ifeq ($(NETWORK),1)
@@ -111,18 +120,21 @@ ifeq ($(NETWORK),1)
   APP_CORE += network.o
   ATHENA_MODULES += ath_network.o ath_socket.o
   IOP_MODULES += NETMAN.o SMAP.o ps2ips.o
+  EE_LIBS += -lnetman -lps2ip -lcurl -lwolfssl
 endif
 
 ifeq ($(KEYBOARD),1)
   EE_CFLAGS += -DATHENA_KEYBOARD
-  ATHENA_MODULES += ath_keyboard.o 
-  IOP_MODULES += ps2kbd.o  
+  ATHENA_MODULES += ath_keyboard.o
+  IOP_MODULES += ps2kbd.o
+  EE_LIBS += -lkbd
 endif
 
 ifeq ($(MOUSE),1)
   EE_CFLAGS += -DATHENA_MOUSE
   ATHENA_MODULES += ath_mouse.o
-  IOP_MODULES += ps2mouse.o 
+  IOP_MODULES += ps2mouse.o
+  EE_LIBS += -lmouse
 endif
 
 ifeq ($(CAMERA),1)
@@ -131,7 +143,7 @@ ifeq ($(CAMERA),1)
   EE_CFLAGS += -DATHENA_CAMERA
   ATHENA_MODULES += ath_camera.o
   IOP_MODULES += ps2cam.o
-  EE_LIBS += -lps2cam 
+  EE_LIBS += -lps2cam
 endif
 
 ifneq ($(EE_SIO), 0)
@@ -141,8 +153,6 @@ ifneq ($(EE_SIO), 0)
   EE_LIBS += -lsiocookie
 endif
 
-
-EE_OBJS = $(APP_CORE) $(INI_READER) $(JS_CORE) $(ATHENA_MODULES) $(VU1_MPGS) $(IOP_MODULES) $(EMBEDDED_ASSETS) # group them all
 EE_OBJS := $(EE_OBJS:%=$(EE_OBJS_DIR)%) #prepend the object folder
 
 EE_BIN := $(EE_BIN)$(EE_EXT)
@@ -159,7 +169,7 @@ all: $(EXT_LIBS) $(EE_BIN) $(EE_EMBED_DIR) $(EE_OBJS_DIR)
 
 # echo "Compressing $(EE_BIN_PKD)...\n"
 # ps2-packer $(EE_BIN) $(EE_BIN_PKD) > /dev/null
-	
+
 	mv $(EE_BIN) bin/
 #	mv $(EE_BIN_PKD) bin/
 
@@ -206,7 +216,7 @@ $(EE_SRC_DIR)%.vcl: $(EE_SRC_DIR)%.vclpp | $(EE_SRC_DIR)
 	@echo VCLPP - $<
 	$(DIR_GUARD)
 	$(EE_VCLPP) $< $@.vcl
-	
+
 $(EE_SRC_DIR)%.vsm: $(EE_SRC_DIR)%.vcl | $(EE_SRC_DIR)
 	@echo VCL - $<
 	$(DIR_GUARD)

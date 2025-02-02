@@ -10,8 +10,10 @@
 
 #include <libpwroff.h>
 
+#ifdef ATHENA_PADEMU
 #include <libds34bt.h>
 #include <libds34usb.h>
+#endif
 
 #include "pad.h"
 
@@ -113,9 +115,11 @@ irx_define(ps2cam);
 #endif
 
 irx_define(freeram);
+irx_define(poweroff);
+#ifdef ATHENA_PADEMU
 irx_define(ds34bt);
 irx_define(ds34usb);
-irx_define(poweroff);
+#endif
 
 int get_boot_device(const char* path);
 
