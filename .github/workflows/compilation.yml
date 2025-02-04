@@ -15,6 +15,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container: ghcr.io/ps2homebrew/ps2homebrew:main
+    strategy:
+      matrix:
+        PADEMU: [0, 1]
+        NETWORK: [0, 1]
+        KEYBOARDMOUSE: [0, 1]
+        DEBUG: [0, 1]
     steps:
     - name: git checkout
       uses: actions/checkout@v4
@@ -26,7 +32,7 @@ jobs:
 
     - name: Compile project
       run: |
-        make clean all
+        make clean all PADEMU=${{ matrix.PADEMU }} NETWORK=${{ matrix.NETWORK }} KEYBOARD=${{ matrix.KEYBOARDMOUSE }} MOUSE=${{ matrix.KEYBOARDMOUSE }} DEBUG=${{ matrix.DEBUG }}
 
     - name: Get short SHA
       id: slug
@@ -36,14 +42,13 @@ jobs:
       if: ${{ success() }}
       uses: actions/upload-artifact@v4
       with:
-        name: AthenaEnv-${{ steps.slug.outputs.sha8 }}
+        name: AthenaEnv-${{ steps.slug.outputs.sha8 }}-PADEMU${{ matrix.PADEMU }}-NETWORK${{ matrix.NETWORK }}-KEYBOARDMOUSE${{ matrix.KEYBOARDMOUSE }}-DEBUG${{ matrix.DEBUG }}
         path: bin
 
     - name: Compress & Rename bin folder
       run: |
         mv bin/ AthenaEnv/
         tar -zcvf AthenaEnv.tar.gz AthenaEnv
-
 
     - name: Create Pre-release
       if: github.ref == 'refs/heads/main'
