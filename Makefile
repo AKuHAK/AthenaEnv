@@ -96,6 +96,7 @@ ifeq ($(PADEMU),1)
   EE_INCS += -Imodules/ds34bt/ee -Imodules/ds34usb/ee
   EE_LIBS += -Lmodules/ds34bt/ee/ -Lmodules/ds34usb/ee/ -lds34bt -lds34usb
   IOP_MODULES += ds34usb.o ds34bt.o
+	EXT_LIBS = modules/ds34usb/ee/libds34usb.a modules/ds34bt/ee/libds34bt.a
 endif
 
 ifeq ($(AUDIO),1)
