@@ -602,12 +602,27 @@ static JSValue athena_fileXioMount(JSContext *ctx, JSValue this_val, int argc, J
             fileXioMount(mountpoint, blockdev, mode)
         );
 }
+
 static JSValue athena_fileXioUmount(JSContext *ctx, JSValue this_val, int argc, JSValueConst *argv) {
     if (argc != 1) return JS_ThrowSyntaxError(ctx, "wrong number of arguments");
     const char* device = JS_ToCString(ctx, argv[0]);
     return JS_NewInt32(ctx,
             fileXioUmount(device)
         );
+}
+
+#define NEWLIB_PORT_AWARE
+#include <fileXio_rpc.h>
+#include <io_common.h>
+
+static JSValue athena_getApaPartitionType(JSContext *ctx, JSValue this_val, int argc,
+                                     JSValueConst *argv) {
+  if (argc != 1)
+    return JS_ThrowSyntaxError(ctx, "wrong number of arguments");
+  const char *device = JS_ToCString(ctx, argv[0]);
+  iox_stat_t *stat;
+  fileXioGetStat(device, stat);
+  return JS_NewInt32(ctx, stat->mode);
 }
 
 static const JSCFunctionListEntry system_funcs[] = {
@@ -634,6 +649,7 @@ static const JSCFunctionListEntry system_funcs[] = {
 	JS_CFUNC_DEF( "getStackTrace",      	  1,   		athena_stacktrace	 ),
 	JS_CFUNC_DEF( "fileXioMount",      	  1,   		    athena_fileXioMount	 ),
 	JS_CFUNC_DEF( "fileXioUmount",      	  1,   		athena_fileXioUmount	 ),
+	JS_CFUNC_DEF( "getApaPartitionType",      	  1,   		athena_getApaPartitionType	 ),
 	JS_PROP_STRING_DEF("boot_path", boot_path, JS_PROP_CONFIGURABLE ),
 	JS_PROP_INT32_DEF("READ_ONLY", 1, JS_PROP_CONFIGURABLE ),
 	JS_PROP_INT32_DEF("SELECT", 2, JS_PROP_CONFIGURABLE ),
