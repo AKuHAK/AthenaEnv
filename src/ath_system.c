@@ -14,6 +14,12 @@
 #include "include/def_mods.h"
 #include "include/taskman.h"
 
+#include <usbhdfsd-common.h>
+#include <hdd-ioctl.h>
+#define NEWLIB_PORT_AWARE
+#include <fileXio_rpc.h>
+#include <io_common.h>
+
 #define MAX_DIR_FILES 512
 
 static JSValue athena_dir(JSContext *ctx, JSValue this_val, int argc, JSValueConst *argv)
@@ -51,27 +57,54 @@ static JSValue athena_dir(JSContext *ctx, JSValue this_val, int argc, JSValueCon
     DIR *d;
     struct dirent *dir;
 
-    d = opendir(path);
-
     struct stat     statbuf;
+    if (strncmp(path, "hdd", 3) == 0 && strlen(path) <= 5)
+    {
+        iox_dirent_t dirent;
+        int fd, ret = 0;
+        if ((fd = fileXioDopen(strncpy(tpath, path, 5))) >= 0) {
+            while (fileXioDread(fd, &dirent) > 0) {
+                if (dirent.stat.attr & APA_FLAG_SUB)
+                    continue;
+                if (strcmp(dirent.name, "__empty") == 0)
+                    continue;
 
-    if (d) {
-        while ((dir = readdir(d)) != NULL) {
+                JSValue obj = JS_NewObject(ctx);
 
-            strcpy(tpath, path);
-            strcat(tpath, "/");
-            strcat(tpath, dir->d_name);
-            stat(tpath, &statbuf);
+				if (dirent.stat.mode != APA_TYPE_HDL) {
+					strcpy(tpath, dirent.name);
+				} else {
+					snprintf(tpath, sizeof(tpath), "%s.iso", dirent.name);
+				}
+				JS_DefinePropertyValueStr(ctx, obj, "name", JS_NewString(ctx, tpath), JS_PROP_C_W_E);
+				JS_DefinePropertyValueStr(ctx, obj, "size", JS_NewUint32(ctx, (512 * dirent.stat.size * (dirent.stat.private_0 + 1))), JS_PROP_C_W_E);
+                JS_DefinePropertyValueStr(ctx, obj, "dir", JS_NewBool(ctx, (dirent.stat.mode == APA_TYPE_PFS)), JS_PROP_C_W_E);
 
-			JSValue obj = JS_NewObject(ctx);
-
-			JS_DefinePropertyValueStr(ctx, obj, "name", JS_NewString(ctx, dir->d_name), JS_PROP_C_W_E);
-			JS_DefinePropertyValueStr(ctx, obj, "size", JS_NewUint32(ctx, statbuf.st_size), JS_PROP_C_W_E);
-			JS_DefinePropertyValueStr(ctx, obj, "dir", JS_NewBool(ctx, (dir->d_type == DT_DIR)), JS_PROP_C_W_E);
-
-            JS_DefinePropertyValueUint32(ctx, arr, i++, obj, JS_PROP_C_W_E);
+                JS_DefinePropertyValueUint32(ctx, arr, i++, obj, JS_PROP_C_W_E);
+            }
         }
-        closedir(d);
+        fileXioDclose(fd);
+    } else {
+        d = opendir(path);
+
+        if (d) {
+            while ((dir = readdir(d)) != NULL) {
+
+                strcpy(tpath, path);
+                strcat(tpath, "/");
+                strcat(tpath, dir->d_name);
+                stat(tpath, &statbuf);
+
+                JSValue obj = JS_NewObject(ctx);
+
+                JS_DefinePropertyValueStr(ctx, obj, "name", JS_NewString(ctx, dir->d_name), JS_PROP_C_W_E);
+                JS_DefinePropertyValueStr(ctx, obj, "size", JS_NewUint32(ctx, statbuf.st_size), JS_PROP_C_W_E);
+                JS_DefinePropertyValueStr(ctx, obj, "dir", JS_NewBool(ctx, (dir->d_type == DT_DIR)), JS_PROP_C_W_E);
+
+                JS_DefinePropertyValueUint32(ctx, arr, i++, obj, JS_PROP_C_W_E);
+            }
+            closedir(d);
+        }
     }
 
     return arr;
@@ -610,11 +643,6 @@ static JSValue athena_fileXioUmount(JSContext *ctx, JSValue this_val, int argc,
   const char *device = JS_ToCString(ctx, argv[0]);
   return JS_NewInt32(ctx, fileXioUmount(device));
 }
-
-#include <usbhdfsd-common.h>
-#define NEWLIB_PORT_AWARE
-#include <fileXio_rpc.h>
-#include <io_common.h>
 
 // Gets BDM driver name via fileXio
 static JSValue athena_getbdminfo(JSContext *ctx, JSValue this_val, int argc,
