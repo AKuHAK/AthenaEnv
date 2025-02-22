@@ -90,6 +90,9 @@ IOP_MODULES = iomanx.o filexio.o sio2man.o mcman.o mcserv.o padman.o  \
 			  ds34usb.o freeram.o ps2dev9.o mtapman.o poweroff.o ata_bd.o \
 			  ps2hdd.o ps2fs.o mmceman.o
 
+# Embedded ELF files
+ELF_FILES += loader_elf.o
+
 EMBEDDED_ASSETS = quicksand_regular.o owl_indices.o owl_palette.o
 
 ifeq ($(GRAPHICS),1)
@@ -141,7 +144,7 @@ ifneq ($(EE_SIO), 0)
 endif
 
 
-EE_OBJS = $(APP_CORE) $(INI_READER) $(JS_CORE) $(ATHENA_MODULES) $(VU1_MPGS) $(IOP_MODULES) $(EMBEDDED_ASSETS) # group them all
+EE_OBJS = $(APP_CORE) $(INI_READER) $(JS_CORE) $(ATHENA_MODULES) $(VU1_MPGS) $(IOP_MODULES) $(ELF_FILES) $(EMBEDDED_ASSETS) # group them all
 EE_OBJS := $(EE_OBJS:%=$(EE_OBJS_DIR)%) #prepend the object folder
 
 EE_BIN := $(EE_BIN)$(EE_EXT)

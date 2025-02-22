@@ -13,3 +13,4 @@ bin/brew_data.json
 !.github
 !.gitignore
 !modules/mmceman/mmceman.irx
+!modules/loader.elf

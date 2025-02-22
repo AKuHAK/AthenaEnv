@@ -101,6 +101,8 @@ $(EE_EMBED_DIR)ps2mouse.c: $(PS2SDK)/iop/irx/ps2mouse.irx | $(EE_EMBED_DIR)
 $(EE_EMBED_DIR)ps2cam.c: $(PS2SDK)/iop/irx/ps2cam.irx | $(EE_EMBED_DIR)
 	$(BIN2S) $< $@ ps2cam_irx
 
+$(EE_EMBED_DIR)loader_elf.c: modules/loader.elf | $(EE_EMBED_DIR)
+	$(BIN2S) $< $@ loader_elf
 
 #--------------------- Embedded text fonts ------------------------#
 
