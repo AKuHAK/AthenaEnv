@@ -232,69 +232,76 @@ static JSValue athena_getmcinfo(JSContext *ctx, JSValue this_val, int argc, JSVa
 extern uint8_t loader_elf[];
 extern int size_loader_elf;
 typedef struct {
-    uint8_t ident[16]; // struct definition for ELF object header
-    uint16_t type;
-    uint16_t machine;
-    uint32_t version;
-    uint32_t entry;
-    uint32_t phoff;
-    uint32_t shoff;
-    uint32_t flags;
-    uint16_t ehsize;
-    uint16_t phentsize;
-    uint16_t phnum;
-    uint16_t shentsize;
-    uint16_t shnum;
-    uint16_t shstrndx;
-  } elf_header_t;
+  uint8_t ident[16]; // struct definition for ELF object header
+  uint16_t type;
+  uint16_t machine;
+  uint32_t version;
+  uint32_t entry;
+  uint32_t phoff;
+  uint32_t shoff;
+  uint32_t flags;
+  uint16_t ehsize;
+  uint16_t phentsize;
+  uint16_t phnum;
+  uint16_t shentsize;
+  uint16_t shnum;
+  uint16_t shstrndx;
+} elf_header_t;
 
-  typedef struct {
-    uint32_t type; // struct definition for ELF program section header
-    uint32_t offset;
-    void *vaddr;
-    uint32_t paddr;
-    uint32_t filesz;
-    uint32_t memsz;
-    uint32_t flags;
-    uint32_t align;
-  } elf_pheader_t;
+typedef struct {
+  uint32_t type; // struct definition for ELF program section header
+  uint32_t offset;
+  void *vaddr;
+  uint32_t paddr;
+  uint32_t filesz;
+  uint32_t memsz;
+  uint32_t flags;
+  uint32_t align;
+} elf_pheader_t;
 
-  // ELF-loading stuff
-  #define ELF_MAGIC 0x464c457f
-  #define ELF_PT_LOAD 1
+// ELF-loading stuff
+#define ELF_MAGIC 0x464c457f
+#define ELF_PT_LOAD 1
 
-  int LoadELFFromFileNoReset(int argc, char *argv[]) {
-    uint8_t *boot_elf;
-    elf_header_t *eh;
-    elf_pheader_t *eph;
-    void *pdata;
-    int i;
+int LoadELFFromFileNoReset(const char *path, int argc, char *argv[]) {
+  uint8_t *boot_elf;
+  elf_header_t *eh;
+  elf_pheader_t *eph;
+  void *pdata;
+  int i;
 
-    // Wipe memory region where the ELF loader is going to be loaded (see loader/linkfile)
-    memset((void *)0x00084000, 0, 0x00100000 - 0x00084000);
-
-    boot_elf = (uint8_t *)loader_elf;
-    eh = (elf_header_t *)boot_elf;
-    if (_lw((uint32_t)&eh->ident) != ELF_MAGIC)
-      __builtin_trap();
-
-    eph = (elf_pheader_t *)(boot_elf + eh->phoff);
-
-    // Scan through the ELF's program headers and copy them into RAM
-    for (i = 0; i < eh->phnum; i++) {
-      if (eph[i].type != ELF_PT_LOAD)
-        continue;
-
-      pdata = (void *)(boot_elf + eph[i].offset);
-      memcpy(eph[i].vaddr, pdata, eph[i].filesz);
-    }
-
-    SifExitRpc();
-    FlushCache(0);
-    FlushCache(2);
-
-    return ExecPS2((void *)eh->entry, NULL, argc, argv);
+  char *new_argv[argc + 1];
+  new_argv[0] = (char *)path;
+  for (i = 0; i < argc; i++) {
+    new_argv[i + 1] = argv[i];
   }
+
+  // Wipe memory region where the ELF loader is going to be loaded (see
+  // loader/linkfile)
+  memset((void *)0x00084000, 0, 0x00100000 - 0x00084000);
+
+  boot_elf = (uint8_t *)loader_elf;
+  eh = (elf_header_t *)boot_elf;
+  if (_lw((uint32_t)&eh->ident) != ELF_MAGIC)
+    __builtin_trap();
+
+  eph = (elf_pheader_t *)(boot_elf + eh->phoff);
+
+  // Scan through the ELF's program headers and copy them into RAM
+  for (i = 0; i < eh->phnum; i++) {
+    if (eph[i].type != ELF_PT_LOAD)
+      continue;
+
+    pdata = (void *)(boot_elf + eph[i].offset);
+    memcpy(eph[i].vaddr, pdata, eph[i].filesz);
+  }
+
+  SifExitRpc();
+  FlushCache(0);
+  FlushCache(2);
+
+  return ExecPS2((void *)eh->entry, NULL, argc + 1, new_argv);
+}
 
 static JSValue athena_loadELF(JSContext *ctx, JSValue this_val, int argc, JSValueConst *argv)
 {
@@ -323,8 +330,7 @@ static JSValue athena_loadELF(JSContext *ctx, JSValue this_val, int argc, JSValu
 
 	if (argc > 2) {
 		if (!JS_ToBool(ctx, argv[2])) {
-
-			LoadELFFromFileNoReset(n, args);
+			LoadELFFromFileNoReset(path, n, args);
         }
 	}
 
@@ -588,18 +594,18 @@ static JSValue athena_stacktrace(JSContext *ctx, JSValue this_val, int argc, JSV
 
 static JSValue athena_fileXioMount(JSContext *ctx, JSValue this_val, int argc, JSValueConst *argv) {
     if (argc != 2 && argc != 3) return JS_ThrowSyntaxError(ctx, "wrong number of arguments");
-    int mode = FIO_MT_RDWR;
+    int mode = 0;
     const char* mountpoint = JS_ToCString(ctx, argv[0]);
     const char* blockdev = JS_ToCString(ctx, argv[1]);
     if (argc == 3) JS_ToInt32(ctx, &mode, argv[2]);
-    return JS_NewInt32(ctx, 
+    return JS_NewInt32(ctx,
             fileXioMount(mountpoint, blockdev, mode)
         );
 }
 static JSValue athena_fileXioUmount(JSContext *ctx, JSValue this_val, int argc, JSValueConst *argv) {
     if (argc != 1) return JS_ThrowSyntaxError(ctx, "wrong number of arguments");
     const char* device = JS_ToCString(ctx, argv[0]);
-    return JS_NewInt32(ctx, 
+    return JS_NewInt32(ctx,
             fileXioUmount(device)
         );
 }
