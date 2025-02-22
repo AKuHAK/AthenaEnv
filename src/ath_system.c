@@ -591,26 +591,27 @@ static JSValue athena_stacktrace(JSContext *ctx, JSValue this_val, int argc, JSV
 	return arr;
 }
 
-
-static JSValue athena_fileXioMount(JSContext *ctx, JSValue this_val, int argc, JSValueConst *argv) {
-    if (argc != 2 && argc != 3) return JS_ThrowSyntaxError(ctx, "wrong number of arguments");
-    int mode = 0;
-    const char* mountpoint = JS_ToCString(ctx, argv[0]);
-    const char* blockdev = JS_ToCString(ctx, argv[1]);
-    if (argc == 3) JS_ToInt32(ctx, &mode, argv[2]);
-    return JS_NewInt32(ctx,
-            fileXioMount(mountpoint, blockdev, mode)
-        );
+static JSValue athena_fileXioMount(JSContext *ctx, JSValue this_val, int argc,
+                                   JSValueConst *argv) {
+  if (argc != 2 && argc != 3)
+    return JS_ThrowSyntaxError(ctx, "wrong number of arguments");
+  int mode = 0;
+  const char *mountpoint = JS_ToCString(ctx, argv[0]);
+  const char *blockdev = JS_ToCString(ctx, argv[1]);
+  if (argc == 3)
+    JS_ToInt32(ctx, &mode, argv[2]);
+  return JS_NewInt32(ctx, fileXioMount(mountpoint, blockdev, mode));
 }
 
-static JSValue athena_fileXioUmount(JSContext *ctx, JSValue this_val, int argc, JSValueConst *argv) {
-    if (argc != 1) return JS_ThrowSyntaxError(ctx, "wrong number of arguments");
-    const char* device = JS_ToCString(ctx, argv[0]);
-    return JS_NewInt32(ctx,
-            fileXioUmount(device)
-        );
+static JSValue athena_fileXioUmount(JSContext *ctx, JSValue this_val, int argc,
+                                    JSValueConst *argv) {
+  if (argc != 1)
+    return JS_ThrowSyntaxError(ctx, "wrong number of arguments");
+  const char *device = JS_ToCString(ctx, argv[0]);
+  return JS_NewInt32(ctx, fileXioUmount(device));
 }
 
+#include <usbhdfsd-common.h>
 #define NEWLIB_PORT_AWARE
 #include <fileXio_rpc.h>
 #include <io_common.h>
@@ -623,6 +624,41 @@ static JSValue athena_getApaPartitionType(JSContext *ctx, JSValue this_val, int 
   iox_stat_t *stat;
   fileXioGetStat(device, stat);
   return JS_NewInt32(ctx, stat->mode);
+}
+
+// Gets BDM driver name via fileXio
+static JSValue athena_getbdminfo(JSContext *ctx, JSValue this_val, int argc,
+                              JSValueConst *argv) {
+  if (argc != 1)
+    return JS_ThrowSyntaxError(ctx, "wrong number of arguments");
+
+  const char *mass = JS_ToCString(ctx, argv[0]);
+
+  int fd = fileXioDopen(mass);
+  if (fd < 0) {
+    return JS_UNDEFINED;
+  }
+
+  char driverName[10];
+  int deviceNumber;
+  if (fileXioIoctl2(fd, USBMASS_IOCTL_GET_DRIVERNAME, NULL, 0, driverName,
+                    sizeof(driverName) - 1) >= 0) {
+    // Null-terminate the string before mapping
+    driverName[sizeof(driverName) - 1] = '\0';
+  }
+
+  // Get device number
+  if (fileXioIoctl2(fd, USBMASS_IOCTL_GET_DEVICE_NUMBER, NULL, 0, &deviceNumber,
+                    sizeof(deviceNumber)) >= 0)
+
+  fileXioDclose(fd);
+
+  JSValue data = JS_NewObject(ctx);
+
+  JS_DefinePropertyValueStr(ctx, data, "driverName", JS_NewString(ctx, driverName), JS_PROP_C_W_E);
+  JS_DefinePropertyValueStr(ctx, data, "deviceNumber", JS_NewInt32(ctx, deviceNumber), JS_PROP_C_W_E);
+
+  return data;
 }
 
 static const JSCFunctionListEntry system_funcs[] = {
@@ -650,6 +686,7 @@ static const JSCFunctionListEntry system_funcs[] = {
 	JS_CFUNC_DEF( "fileXioMount",      	  1,   		    athena_fileXioMount	 ),
 	JS_CFUNC_DEF( "fileXioUmount",      	  1,   		athena_fileXioUmount	 ),
 	JS_CFUNC_DEF( "getApaPartitionType",      	  1,   		athena_getApaPartitionType	 ),
+	JS_CFUNC_DEF( "getbdminfo",      	  1,   		athena_getbdminfo	 ),
 	JS_PROP_STRING_DEF("boot_path", boot_path, JS_PROP_CONFIGURABLE ),
 	JS_PROP_INT32_DEF("READ_ONLY", 1, JS_PROP_CONFIGURABLE ),
 	JS_PROP_INT32_DEF("SELECT", 2, JS_PROP_CONFIGURABLE ),
