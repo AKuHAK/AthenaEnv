@@ -22,6 +22,8 @@
 
 #define MAX_DIR_FILES 512
 
+extern char HDDMountPoint[32+6+1]; // max partition name + 'hdd0:/' + '\0'
+
 static JSValue athena_dir(JSContext *ctx, JSValue this_val, int argc, JSValueConst *argv)
 {
     if (argc != 0 && argc != 1) return JS_ThrowSyntaxError(ctx, "Argument error: System.listDir([path]) takes zero or one argument.");
@@ -212,7 +214,15 @@ static JSValue athena_sleep(JSContext *ctx, JSValue this_val, int argc, JSValueC
 
 static JSValue athena_delay(JSContext *ctx, JSValue this_val, int argc, JSValueConst *argv)
 {
-	nopdelay();
+    if (argc != 1) return JS_ThrowSyntaxError(ctx, "seconds expected.");
+    int ret;
+    int count;
+	JS_ToInt32(ctx, &count, argv[0]);
+    for (int i = 0; i < count; i++) {
+      ret = 0x01000000;
+      while (ret--)
+        asm("nop\nnop\nnop\nnop");
+    }
 	return JS_UNDEFINED;
 }
 
@@ -296,80 +306,91 @@ typedef struct {
 #define ELF_MAGIC 0x464c457f
 #define ELF_PT_LOAD 1
 
-int LoadELFFromFileNoReset(const char *path, int argc, char *argv[]) {
-  uint8_t *boot_elf;
-  elf_header_t *eh;
-  elf_pheader_t *eph;
-  void *pdata;
-  int i;
+int LoadELFFromFileNoReset(const char *path, const char *mountpoint, int argc, char *argv[]) {
+    uint8_t *boot_elf;
+    elf_header_t *eh;
+    elf_pheader_t *eph;
+    void *pdata;
+    int i;
 
-  char *new_argv[argc + 1];
-  new_argv[0] = (char *)path;
-  for (i = 0; i < argc; i++) {
-    new_argv[i + 1] = argv[i];
-  }
+    char *new_argv[argc + 1];
+    new_argv[0] = (char *)path;
+    for (i = 0; i < argc; i++) {
+        new_argv[i + 1] = argv[i];
+    }
 
-  // Wipe memory region where the ELF loader is going to be loaded (see
-  // loader/linkfile)
-  memset((void *)0x00084000, 0, 0x00100000 - 0x00084000);
+    // Wipe memory region where the ELF loader is going to be loaded (see
+    // loader/linkfile)
+    memset((void *)0x00084000, 0, 0x00100000 - 0x00084000);
 
-  boot_elf = (uint8_t *)loader_elf;
-  eh = (elf_header_t *)boot_elf;
-  if (_lw((uint32_t)&eh->ident) != ELF_MAGIC)
-    __builtin_trap();
+    boot_elf = (uint8_t *)loader_elf;
+    eh = (elf_header_t *)boot_elf;
+    if (_lw((uint32_t)&eh->ident) != ELF_MAGIC)
+        __builtin_trap();
 
-  eph = (elf_pheader_t *)(boot_elf + eh->phoff);
+    eph = (elf_pheader_t *)(boot_elf + eh->phoff);
 
-  // Scan through the ELF's program headers and copy them into RAM
-  for (i = 0; i < eh->phnum; i++) {
-    if (eph[i].type != ELF_PT_LOAD)
-      continue;
+    // Scan through the ELF's program headers and copy them into RAM
+    for (i = 0; i < eh->phnum; i++) {
+        if (eph[i].type != ELF_PT_LOAD)
+            continue;
 
-    pdata = (void *)(boot_elf + eph[i].offset);
-    memcpy(eph[i].vaddr, pdata, eph[i].filesz);
-  }
+        pdata = (void *)(boot_elf + eph[i].offset);
+        memcpy(eph[i].vaddr, pdata, eph[i].filesz);
+    }
 
-  SifExitRpc();
-  FlushCache(0);
-  FlushCache(2);
+    // Modify path if it starts with "pfs"
+    if (strncmp(path, "pfs", 3) == 0) {
+        char modified_path[384];
+        if (mountpoint == NULL) {
+            if (HDDMountPoint == NULL)
+                mountpoint = "hdd0:__common";
+            else
+                mountpoint = HDDMountPoint;
+        }
+        snprintf(modified_path, sizeof(modified_path), "%s:pfs:%s", mountpoint, strchr(path, ':') + 1);
+        new_argv[0] = modified_path;
+    }
 
-  return ExecPS2((void *)eh->entry, NULL, argc + 1, new_argv);
+    SifExitRpc();
+    FlushCache(0);
+    FlushCache(2);
+
+    return ExecPS2((void *)eh->entry, NULL, argc + 1, new_argv);
 }
 
 static JSValue athena_loadELF(JSContext *ctx, JSValue this_val, int argc, JSValueConst *argv)
 {
+    JSValue val;
+    int n = 0;
+    char **args = NULL;
+    const char *path = JS_ToCString(ctx, argv[0]);
+    const char *mountpoint = NULL;
 
-	JSValue val;
-	int n = 0;
-	char **args = NULL;
-	const char *path = JS_ToCString(ctx, argv[0]);
-
-	if(argc > 1) {
-		if (!JS_IsArray(ctx, argv[1])) {
-		    return JS_ThrowSyntaxError(ctx, "Type error, you should use a string array.");
-		}
-
-		val = JS_GetPropertyStr(ctx, argv[1], "length");
-		JS_ToInt32(ctx, &n, val);
-		JS_FreeValue(ctx, val);
-		args = malloc(n*sizeof(char*));
-
-		for (int i = 0; i < n; i++) {
-			val = JS_GetPropertyUint32(ctx, argv[1], i);
-		    *(args + i) = (char*)JS_ToCString(ctx, val);
-			JS_FreeValue(ctx, val);
-		}
-	}
-
-	if (argc > 2) {
-		if (!JS_ToBool(ctx, argv[2])) {
-            LoadELFFromFile(path, n, args);
+    if (argc > 1) {
+        if (!JS_IsArray(ctx, argv[1])) {
+            return JS_ThrowSyntaxError(ctx, "Type error, you should use a string array.");
         }
-	}
-    LoadELFFromFileNoReset(path, n, args);
 
+        val = JS_GetPropertyStr(ctx, argv[1], "length");
+        JS_ToInt32(ctx, &n, val);
+        JS_FreeValue(ctx, val);
+        args = malloc(n * sizeof(char*));
 
-	return JS_UNDEFINED;
+        for (int i = 0; i < n; i++) {
+            val = JS_GetPropertyUint32(ctx, argv[1], i);
+            *(args + i) = (char*)JS_ToCString(ctx, val);
+            JS_FreeValue(ctx, val);
+        }
+    }
+
+    if (argc > 2) {
+        mountpoint = JS_ToCString(ctx, argv[2]);
+    }
+
+    LoadELFFromFileNoReset(path, mountpoint, n, args);
+
+    return JS_UNDEFINED;
 }
 
 DiscType DiscTypes[] = {
@@ -663,7 +684,8 @@ static JSValue athena_getbdminfo(JSContext *ctx, JSValue this_val, int argc,
                     sizeof(driverName) - 1) >= 0) {
     // Null-terminate the string before mapping
     driverName[sizeof(driverName) - 1] = '\0';
-  }
+  } else
+    return JS_UNDEFINED;
 
   // Get device number
   if (fileXioIoctl2(fd, USBMASS_IOCTL_GET_DEVICE_NUMBER, NULL, 0, &deviceNumber,

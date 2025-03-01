@@ -2,6 +2,7 @@
 #include "include/def_mods.h"
 #include "include/dbgprintf.h"
 #include <string.h>
+#include <dirent.h>
 
 #define NEWLIB_PORT_AWARE
 #include <fileXio_rpc.h>
@@ -70,16 +71,27 @@ void prepare_IOP() {
 	camera_started = false;
 }
 
+void delay(int count) {
+    int ret;
+    for (int i = 0; i < count; i++) {
+      ret = 0x01000000;
+      while (ret--)
+        asm("nop\nnop\nnop\nnop");
+    }
+}
+
 bool wait_device(char *path) {
     dbgprintf("waiting for '%s'\n", path);
     struct stat buffer;
     int ret = -1;
-    int retries = 500;
+    int retries = 3;
 
     while(ret != 0 && retries > 0) {
+        dbgprintf("waiting for '%s'\n", path);
         ret = stat(path, &buffer);
+        dbgprintf("stat ret=%d\n", ret);
         /* Wait untill the device is ready */
-        nopdelay();
+        delay(2);
 
         retries--;
     }
@@ -99,7 +111,7 @@ int get_boot_device(const char* path) {
 		device = MMCEMAN_MODULE;
 	} else if(started_from("cdfs") || started_from("cdrom")) {
 		device = CDFS_MODULE;
-	} else if(started_from("hdd")) {
+	} else if(started_from("hdd") || started_from("pfs")) {
 		device = HDD_MODULE;
 	}
 
@@ -243,20 +255,19 @@ int load_default_module(int id) {
 				REPORT("BDM");
     			ID = SifExecModuleBuffer(&bdmfs_fatfs_irx, size_bdmfs_fatfs_irx, 0, NULL, &ret);
 				REPORT("BDMFS_FATFS");
-    			ID = SifExecModuleBuffer(&ata_bd_irx, size_ata_bd_irx, 0, NULL, &ret);
-				REPORT("ATA_BD");
 
 				bdm_started = LOAD_SUCCESS();
 			}
 			break;
         case USB_MASS_MODULE:
-			if (!bdm_started)
-				load_default_module(BDM_MODULE);
+			// if (!bdm_started)
+			// 	load_default_module(BDM_MODULE);
 			if (!usbd_started)
 				load_default_module(USBD_MODULE);
 			if (!usb_mass_started) {
     			ID = SifExecModuleBuffer(&usbmass_bd_irx, size_usbmass_bd_irx, 0, NULL, &ret);
-				REPORT("USMASS_BD");
+				REPORT("USBMASS_BD");
+                delay(10);
 
 				usb_mass_started = LOAD_SUCCESS();
 			}
@@ -287,14 +298,17 @@ int load_default_module(int id) {
 				load_default_module(FILEXIO_MODULE);
 			if (!dev9_started)
 				load_default_module(DEV9_MODULE);
-			if (!usb_mass_started)
-				load_default_module(USB_MASS_MODULE);
+			// if (!usb_mass_started)
+			// 	load_default_module(USB_MASS_MODULE);
 			if ((!hdd_started) && filexio_started) {
 
-    			ID = SifExecModuleBuffer(&ps2hdd_irx, size_ps2hdd_irx, sizeof(hddarg), hddarg, &ret);
+                sleep(5);
+                ID = SifExecModuleBuffer(&ata_bd_irx, size_ata_bd_irx, 0, NULL, &ret);
+				REPORT("ATA_BD");
+       			ID = SifExecModuleBuffer(&ps2hdd_irx, size_ps2hdd_irx, sizeof(hddarg), hddarg, &ret);
 				REPORT("PS2HDD");
+                sleep(5);
                 // Introduce delay to prevent ps2hdd module from hanging
-                sleep(1);
 
     			HDDSTAT = fileXioDevctl("hdd0:", HDIOC_STATUS, NULL, 0, NULL, 0); /* 0 = HDD connected and formatted, 1 = not formatted, 2 = HDD not usable, 3 = HDD not connected. */
 				dbgprintf("%s: HDD status is %d\n", __func__, HDDSTAT);

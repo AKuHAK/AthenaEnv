@@ -90,7 +90,7 @@ function Window(x, y, w, h, t) {
 
     this.add = function(func) { this.elm_list.push(func) };
 
-    this.del = function(func) { 
+    this.del = function(func) {
         idx = this.elm_list.indexOf(func);
         if (idx > -1) {
             this.elm_list = this.elm_list.splice(idx, 1);
@@ -138,9 +138,9 @@ var file_manager = new App();
 file_manager.data = [0, 0, 0, 1];
 file_manager.comp = 0;
 
-var root = [{name:"cdfs:/", size:0, dir:true}, 
-            {name:"host:/", size:0, dir:true}, 
-            {name:"mass:/", size:0, dir:true}, 
+var root = [{name:"cdfs:/", size:0, dir:true},
+            {name:"host:/", size:0, dir:true},
+            {name:"mass:/", size:0, dir:true},
             {name:"mc0:/", size:0, dir:true},
             {name:"mc1:/", size:0, dir:true}];
 
@@ -190,7 +190,7 @@ file_manager.process = function() {
                 file = System.listDir(path);
 
             } else if(file[file_manager.data[0]].name.endsWith(".js")){
-                System.loadELF(System.boot_path + "/athena.elf", [path + "/" + file[file_manager.data[0]].name]);
+                System.loadELF(System.boot_path + "/athena.elf", NULL, [path + "/" + file[file_manager.data[0]].name]);
             } else if(file[file_manager.data[0]].name.endsWith(".elf") || file[file_manager.data[0]].name.endsWith(".ELF")){
                 System.loadELF(path + "/"+ file[file_manager.data[0]].name);
             } else if(file[file_manager.data[0]].name.endsWith(".zip")){
@@ -295,7 +295,7 @@ while(true){
     if(pad.justPressed(Pads.CIRCLE)) {
         break;
     }
-    
+
     Screen.flip();
 };
 

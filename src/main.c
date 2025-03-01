@@ -26,6 +26,8 @@
 
 #include <readini.h>
 
+char HDDMountPoint[32+6+1]; // max partition name + 'hdd0:/' + '\0'
+
 char boot_path[255];
 char default_script[128] = "main.js";
 char default_cfg[128] = "athena.ini";
@@ -38,6 +40,7 @@ static void init_drivers() {
     load_default_module(HDD_MODULE);
     load_default_module(USB_MASS_MODULE);
     load_default_module(PADS_MODULE);
+    load_default_module(BDM_MODULE);
     load_default_module(DS34BT_MODULE);
     load_default_module(DS34USB_MODULE);
     load_default_module(AUDIO_MODULE);
@@ -97,7 +100,6 @@ int main(int argc, char **argv) {
     reset_iop = RESET_IOP;
 #endif
 
-    char MountPoint[32+6+1]; // max partition name + 'hdd0:/' + '\0'
     char newCWD[255];
 
     init_memory_manager();
@@ -164,9 +166,9 @@ int main(int argc, char **argv) {
 
         if ((!strncmp(boot_path, "hdd0:", 5)) && (strstr(boot_path, ":pfs:") != NULL) && HDD_USABLE) // we booted from HDD and our modules are loaded and running...
         {
-            if (getMountInfo(boot_path, NULL, MountPoint, newCWD)) // ...if we can parse the boot path...
+            if (getMountInfo(boot_path, NULL, HDDMountPoint, newCWD)) // ...if we can parse the boot path...
             {
-                if (mnt(MountPoint, 0, FIO_MT_RDWR)==0) // ...mount the partition...
+                if (mnt(HDDMountPoint, 0, FIO_MT_RDWR)==0) // ...mount the partition...
                 {
                     strcpy(boot_path, newCWD); // ...replace boot path with mounted pfs path.
                     chdir(newCWD);
@@ -177,7 +179,23 @@ int main(int argc, char **argv) {
 
             }
         }
-
+        if (strncmp(boot_path, "mass", 4) == 0) {
+            char temp_path[255];
+            if (strncmp(boot_path, "mass:", 5) == 0) {
+                strcpy(temp_path, "mass0:");
+                strncat(temp_path, boot_path + 5, 255 - strlen(temp_path) - 1);
+            } else {
+                strcpy(temp_path, boot_path);
+                temp_path[4] = '0';
+            }
+            char *last_slash = strrchr(temp_path, '/');
+            dbgprintf("temp_path: %s\n", temp_path);
+            if (last_slash != NULL) {
+                *last_slash = '\0';
+                chdir(temp_path);
+            }
+        }
+        dbgprintf("boot path: %s\n", boot_path);
         wait_device(boot_path);
     }
 

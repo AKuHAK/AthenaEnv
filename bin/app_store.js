@@ -19,7 +19,7 @@ function load_network_driver() {
     IOP.loadDefaultModule(IOP.usb_mass);
     IOP.loadDefaultModule(IOP.pads);
     IOP.loadDefaultModule(IOP.network);
-    
+
     Network.init();
 }
 
@@ -98,7 +98,7 @@ class UI {
             }
 
             this.font.color = Color.new(0x80, 0x80, 0x80, this.text_alpha);
-            
+
         }
     }
 
@@ -144,7 +144,7 @@ class Menu {
         if(pad.justPressed(buttons[this.pad_mode].dec)) {
             this.num--;
         }
-    
+
         if(pad.justPressed(buttons[this.pad_mode].inc)) {
             this.num++;
         }
@@ -202,7 +202,7 @@ class Menu {
 class IconMenu extends Menu {
     constructor(x, y, font, list) {
         super(x, y, font, list)
-        
+
         let icons = [];
         for(let i = 0; i < list.length; i++) {
             let icn = new Image("store/icons/" + list[i].icon);
@@ -415,9 +415,9 @@ while(true) {
                         ui.println(dling_text);
                         for (let i = 0; i < 5000; i++) {
                             Screen.flip();
-                        }   
+                        }
                         Network.deinit();
-                        System.loadELF(System.loadELF(System.boot_path + "athena_pkd.elf", ["app_store.js"]) );
+                        System.loadELF(System.loadELF(System.boot_path + "athena_pkd.elf", NULL, ["app_store.js"]) );
                     }
 
                     break;
