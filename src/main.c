@@ -177,7 +177,18 @@ int main(int argc, char **argv) {
 
             }
         }
-
+        if (strncmp(boot_path, "mass", 4) == 0) {
+            char temp_path[255];
+            if (strncmp(boot_path, "mass:", 5) == 0) {
+                strcpy(temp_path, "mass0:");
+                strncat(temp_path, boot_path + 5, 255 - strlen(temp_path) - 1);
+            } else {
+                strcpy(temp_path, boot_path);
+                temp_path[4] = '0';
+            }
+            chdir(temp_path);
+            strcpy(boot_path, temp_path); // Copy temp_path into boot_path if not null
+        }
         wait_device(boot_path);
     }
 
