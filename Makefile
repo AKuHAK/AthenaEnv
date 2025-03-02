@@ -181,6 +181,8 @@ clean:
 	rm -rf $(EE_EMBED_DIR)
 	$(MAKE) -C modules/ds34usb clean
 	$(MAKE) -C modules/ds34bt clean
+	$(MAKE) -C modules/freeram clean
+	$(MAKE) -C modules/loader clean
 
 rebuild: clean all
 
