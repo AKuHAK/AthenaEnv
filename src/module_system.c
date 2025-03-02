@@ -243,17 +243,17 @@ int load_default_module(int id) {
 				REPORT("BDM");
     			ID = SifExecModuleBuffer(&bdmfs_fatfs_irx, size_bdmfs_fatfs_irx, 0, NULL, &ret);
 				REPORT("BDMFS_FATFS");
-    			ID = SifExecModuleBuffer(&ata_bd_irx, size_ata_bd_irx, 0, NULL, &ret);
-				REPORT("ATA_BD");
+    			ID = SifExecModuleBuffer(&ps2atad_irx, size_ps2atad_irx, 0, NULL, &ret);
+				REPORT("ATAD");
 
 				bdm_started = LOAD_SUCCESS();
 			}
 			break;
         case USB_MASS_MODULE:
-			if (!bdm_started)
-				load_default_module(BDM_MODULE);
 			if (!usbd_started)
 				load_default_module(USBD_MODULE);
+			if (!bdm_started)
+				load_default_module(BDM_MODULE);
 			if (!usb_mass_started) {
     			ID = SifExecModuleBuffer(&usbmass_bd_irx, size_usbmass_bd_irx, 0, NULL, &ret);
 				REPORT("USMASS_BD");
@@ -291,10 +291,13 @@ int load_default_module(int id) {
 				load_default_module(USB_MASS_MODULE);
 			if ((!hdd_started) && filexio_started) {
 
+    			ID = SifExecModuleBuffer(&ps2atad_irx, size_ps2atad_irx, 0, NULL, &ret);
+				REPORT("ATAD");
+                // Introduce delay to prevent ps2hdd module from hanging
+                // sleep(1);
     			ID = SifExecModuleBuffer(&ps2hdd_irx, size_ps2hdd_irx, sizeof(hddarg), hddarg, &ret);
 				REPORT("PS2HDD");
-                // Introduce delay to prevent ps2hdd module from hanging
-                sleep(1);
+
 
     			HDDSTAT = fileXioDevctl("hdd0:", HDIOC_STATUS, NULL, 0, NULL, 0); /* 0 = HDD connected and formatted, 1 = not formatted, 2 = HDD not usable, 3 = HDD not connected. */
 				dbgprintf("%s: HDD status is %d\n", __func__, HDDSTAT);
