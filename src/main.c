@@ -31,6 +31,8 @@ char default_script[128] = "main.js";
 char default_cfg[128] = "athena.ini";
 bool dark_mode, boot_logo;
 
+char HDDMountPoint[32+6+1]; // max partition name + 'hdd0:/' + '\0'
+
 static void init_drivers() {
     load_default_module(MC_MODULE);
     load_default_module(MMCEMAN_MODULE);
@@ -97,7 +99,6 @@ int main(int argc, char **argv) {
     reset_iop = RESET_IOP;
 #endif
 
-    char MountPoint[32+6+1]; // max partition name + 'hdd0:/' + '\0'
     char newCWD[255];
 
     init_memory_manager();
@@ -164,9 +165,9 @@ int main(int argc, char **argv) {
 
         if ((!strncmp(boot_path, "hdd0:", 5)) && (strstr(boot_path, ":pfs:") != NULL) && HDD_USABLE) // we booted from HDD and our modules are loaded and running...
         {
-            if (getMountInfo(boot_path, NULL, MountPoint, newCWD)) // ...if we can parse the boot path...
+            if (getMountInfo(boot_path, NULL, HDDMountPoint, newCWD)) // ...if we can parse the boot path...
             {
-                if (mnt(MountPoint, 0, FIO_MT_RDWR)==0) // ...mount the partition...
+                if (mnt(HDDMountPoint, 0, FIO_MT_RDWR)==0) // ...mount the partition...
                 {
                     strcpy(boot_path, newCWD); // ...replace boot path with mounted pfs path.
                     chdir(newCWD);

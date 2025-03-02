@@ -22,6 +22,8 @@
 
 #define MAX_DIR_FILES 512
 
+extern char HDDMountPoint[32+6+1];
+
 static JSValue athena_dir(JSContext *ctx, JSValue this_val, int argc, JSValueConst *argv)
 {
     if (argc != 0 && argc != 1) return JS_ThrowSyntaxError(ctx, "Argument error: System.listDir([path]) takes zero or one argument.");
@@ -304,9 +306,23 @@ int LoadELFFromFileNoReset(const char *path, int argc, char *argv[]) {
   int i;
 
   char *new_argv[argc + 1];
-  new_argv[0] = (char *)path;
+
+  // Modify path if it starts with "pfs"
+  if (strncmp(path, "pfs", 3) == 0) {
+    char modified_path[384];
+	if (HDDMountPoint[0] != NULL) {
+		snprintf(modified_path, sizeof(modified_path), "%s:%s", HDDMountPoint, path);
+		new_argv[0] = modified_path;
+	} else {
+		new_argv[0] = (char *)path;
+	}
+
+	dbgprintf("Modified path: %s\n", new_argv[0]);
+  } else {
+	new_argv[0] = (char *)path;
+  }
   for (i = 0; i < argc; i++) {
-    new_argv[i + 1] = argv[i];
+	new_argv[i + 1] = argv[i];
   }
 
   // Wipe memory region where the ELF loader is going to be loaded (see
