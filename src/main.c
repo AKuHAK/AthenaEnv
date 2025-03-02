@@ -135,29 +135,6 @@ int main(int argc, char **argv) {
 	init_graphics();
     #endif
 
-    if (!ignore_ini) {
-        if (readini_open(&ini, default_cfg)) {
-            while(readini_getline(&ini)) {
-                if (readini_bool(&ini, "boot_logo", &boot_logo)) {
-                    dbgprintf("reading boot_logo at athena.ini\n");
-
-                } else if (readini_bool(&ini, "dark_mode", &dark_mode)) {
-                    dbgprintf("reading dark_mode at athena.ini\n");
-
-                } else if (readini_string(&ini, "default_script", default_script)) {
-                    dbgprintf("reading default_script at athena.ini\n");
-
-                }
-            }
-
-            readini_close(&ini);
-        }
-    }
-
-    if (boot_logo) {
-        init_bootlogo();
-    }
-
     if (reset_iop) {
         prepare_IOP();
 
@@ -191,6 +168,29 @@ int main(int argc, char **argv) {
             strcpy(boot_path, temp_path); // Copy temp_path into boot_path if not null
         }
         wait_device(boot_path);
+    }
+
+    if (!ignore_ini) {
+        if (readini_open(&ini, default_cfg)) {
+            while(readini_getline(&ini)) {
+                if (readini_bool(&ini, "boot_logo", &boot_logo)) {
+                    dbgprintf("reading boot_logo at athena.ini\n");
+
+                } else if (readini_bool(&ini, "dark_mode", &dark_mode)) {
+                    dbgprintf("reading dark_mode at athena.ini\n");
+
+                } else if (readini_string(&ini, "default_script", default_script)) {
+                    dbgprintf("reading default_script at athena.ini\n");
+
+                }
+            }
+
+            readini_close(&ini);
+        }
+    }
+
+    if (boot_logo) {
+        init_bootlogo();
     }
 
     #ifdef ATHENA_GRAPHICS
